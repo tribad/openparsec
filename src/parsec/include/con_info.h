@@ -12,7 +12,7 @@ typedef int (*notify_callback_fpt)( GenObject *base );
 
 // access information for single object property (type/class field)
 //FIXME: Zillions of offsetof warnings start here
-struct proplist_s {
+/*struct proplist_s {
 
 	const char*			propname;		// name property can be accessed by
 	size_t				propoffset;		// offset of property in obj structure
@@ -21,8 +21,9 @@ struct proplist_s {
 	int					fieldtype;		// field's data type
 	notify_callback_fpt notify_callback; // callback on field value changes
 };
+*/
 
-struct proplist_s_new {
+struct proplist_s {
 	const char*			propname;		// name property can be accessed by
 	void *				proppo;		    // Pointer to value
 	int 				bmin;			// minimum value of property

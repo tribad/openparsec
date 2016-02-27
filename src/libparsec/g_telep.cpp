@@ -184,39 +184,41 @@ PRIVATE void	Teleporter_Rotation_Transform		( float phi, float theta, Xmatrx tra
 
 // list of console-accessible properties --------------------------------------
 //
+Teleporter *proplist_teleporter;
+
 PRIVATE
 proplist_s Teleporter_PropList[] = {
 	
-	{ "exit_delta_x",			OFS_EXITDELTAX,		-0x40000000,0x40000000,					PROPTYPE_FLOAT,		TeleporterModify_ExitPropsChanged	},
-	{ "exit_delta_y",			OFS_EXITDELTAY,		-0x40000000,0x40000000,					PROPTYPE_FLOAT,		TeleporterModify_ExitPropsChanged	},
-	{ "exit_delta_z",			OFS_EXITDELTAZ,		-0x40000000,0x40000000,					PROPTYPE_FLOAT,		TeleporterModify_ExitPropsChanged	},
-	{ "exit_rot_phi",			OFS_EXITROTPHI,		0x00000,	0x1680000,					PROPTYPE_FLOAT,		TeleporterModify_ExitPropsChanged	},
-	{ "exit_rot_theta",			OFS_EXITROTTHETA,	0x00000,	0x1680000,					PROPTYPE_FLOAT,		TeleporterModify_ExitPropsChanged	},
-	{ "actoffset",				OFS_ACTOFFSET,		0x10000,	0x4000000,					PROPTYPE_FLOAT,		NULL	},
-	{ "active",					OFS_ACTIVE,			0x0,		0x1,						PROPTYPE_INT,		NULL    },
-	{ "tex_name_interior",		OFS_TEXNAME_INT,	0,			TELEPORTER_MAX_TEX_NAME,	PROPTYPE_STRING,	TeleporterModify_TexPropsChanged	},
-	{ "tex_name_tunnel",		OFS_TEXNAME_TUNNEL,	0,			TELEPORTER_MAX_TEX_NAME,	PROPTYPE_STRING,	TeleporterModify_TexPropsChanged	},
-	{ "tex_u_var1",				OFS_U_VAR1,			0x00000,	0x0010000,					PROPTYPE_FLOAT,		TeleporterModify_TexPropsChanged	},
-	{ "tex_v_var1",				OFS_V_VAR1,			0x00000,	0x0010000,					PROPTYPE_FLOAT,		TeleporterModify_TexPropsChanged	},
-	{ "tex_u_var2",				OFS_U_VAR2,			0x00000,	0x0010000,					PROPTYPE_FLOAT,		TeleporterModify_TexPropsChanged	},
-	{ "tex_v_var2",				OFS_V_VAR2,			0x00000,	0x0010000,					PROPTYPE_FLOAT,		TeleporterModify_TexPropsChanged	},
-	{ "secly",					OFS_START_SEC_LY,	0x0,		0x1,						PROPTYPE_INT,		NULL    },
-	{ "start_tex_alpha",		OFS_START_TEX_ALPHA,0x0,		0xff,						PROPTYPE_INT,		NULL    },
-	{ "act_cone_angle",			OFS_ACT_CONE_ANGLE,	0x00000,	0x0590000,					PROPTYPE_FLOAT,		NULL	},
-	{ "tslerp",					OFS_TUNNEL_SLERP,	0x0,		0x1,						PROPTYPE_INT,		NULL    },
-	{ "tlerp",					OFS_TUNNEL_LERP,	0x0,		0x2,						PROPTYPE_INT,		NULL    },
-	{ "tunnel_ts1",				OFS_TUNNEL_TAN_MUL1,0x1,		0x40000000,					PROPTYPE_FLOAT,		TeleporterModify_SplinePropsChanged	},	
-	{ "tunnel_ts2",				OFS_TUNNEL_TAN_MUL2,0x1,		0x40000000,					PROPTYPE_FLOAT,		TeleporterModify_SplinePropsChanged	},	
-	{ "tunnel_spline_cords",	OFS_TUNNEL_SPL_CORDS,0x1,		0x800000,					PROPTYPE_INT,		TeleporterModify_SplinePropsChanged },
-	{ "tunnel_anim_speed",		OFS_TUNNEL_ANIM_SPD,0x0,		0x2580000,					PROPTYPE_FLOAT,		NULL	},	
-	{ "tunnel_spline",			OFS_TUNNEL_SPLINE,	0x0,		0x3f,						PROPTYPE_INT,		NULL    },
-	{ "tunnel_tex_alpha",		OFS_TUNNEL_TEX_ALPHA,0x0,		0xff,						PROPTYPE_INT,		NULL    },
-	{ "tunnel_len",				OFS_TUNNEL_LEN,		0x0,		0x4000000,					PROPTYPE_INT,		TeleporterModify_SplinePropsChanged },
-	{ "start.x",				OFS_START_X,		-0x7fffffff,0x7fffffff,					PROPTYPE_GEOMV,		TeleporterModify_StartPropsChanged	},
-	{ "start.y",				OFS_START_Y,		-0x7fffffff,0x7fffffff,					PROPTYPE_GEOMV,		TeleporterModify_StartPropsChanged	},
-	{ "start.z",				OFS_START_Z,		-0x7fffffff,0x7fffffff,					PROPTYPE_GEOMV,		TeleporterModify_StartPropsChanged	},
-	{ "start_rot_phi",			OFS_STARTROTPHI,	-0x2d00000,	0x2d00000,					PROPTYPE_FLOAT,		TeleporterModify_StartPropsChanged	},
-	{ "start_rot_theta",		OFS_STARTROTTHETA,	-0x2d00000,	0x2d00000,					PROPTYPE_FLOAT,		TeleporterModify_StartPropsChanged	},
+	{ "exit_delta_x",			&proplist_teleporter->exit_delta_x,		-0x40000000,0x40000000,					PROPTYPE_FLOAT,		TeleporterModify_ExitPropsChanged	},
+	{ "exit_delta_y",			&proplist_teleporter->exit_delta_y,		-0x40000000,0x40000000,					PROPTYPE_FLOAT,		TeleporterModify_ExitPropsChanged	},
+	{ "exit_delta_z",			&proplist_teleporter->exit_delta_z,		-0x40000000,0x40000000,					PROPTYPE_FLOAT,		TeleporterModify_ExitPropsChanged	},
+	{ "exit_rot_phi",			&proplist_teleporter->exit_rot_phi,		0x00000,	0x1680000,					PROPTYPE_FLOAT,		TeleporterModify_ExitPropsChanged	},
+	{ "exit_rot_theta",			&proplist_teleporter->exit_rot_theta,	0x00000,	0x1680000,					PROPTYPE_FLOAT,		TeleporterModify_ExitPropsChanged	},
+	{ "actoffset",				&proplist_teleporter->actoffset,		0x10000,	0x4000000,					PROPTYPE_FLOAT,		NULL	},
+	{ "active",					&proplist_teleporter->active,			0x0,		0x1,						PROPTYPE_INT,		NULL    },
+	{ "tex_name_interior",		&proplist_teleporter->tex_name_interior,	0,			TELEPORTER_MAX_TEX_NAME,	PROPTYPE_STRING,	TeleporterModify_TexPropsChanged	},
+	{ "tex_name_tunnel",		&proplist_teleporter->tex_name_tunnel,	0,			TELEPORTER_MAX_TEX_NAME,	PROPTYPE_STRING,	TeleporterModify_TexPropsChanged	},
+	{ "tex_u_var1",				&proplist_teleporter->u_variation[0],			0x00000,	0x0010000,					PROPTYPE_FLOAT,		TeleporterModify_TexPropsChanged	},
+	{ "tex_v_var1",				&proplist_teleporter->v_variation[0],			0x00000,	0x0010000,					PROPTYPE_FLOAT,		TeleporterModify_TexPropsChanged	},
+	{ "tex_u_var2",				&proplist_teleporter->u_variation[1],			0x00000,	0x0010000,					PROPTYPE_FLOAT,		TeleporterModify_TexPropsChanged	},
+	{ "tex_v_var2",				&proplist_teleporter->v_variation[1],			0x00000,	0x0010000,					PROPTYPE_FLOAT,		TeleporterModify_TexPropsChanged	},
+	{ "secly",					&proplist_teleporter->start_tex_sec_layer,	0x0,		0x1,						PROPTYPE_INT,		NULL    },
+	{ "start_tex_alpha",		&proplist_teleporter->start_tex_alpha,0x0,		0xff,						PROPTYPE_INT,		NULL    },
+	{ "act_cone_angle",			&proplist_teleporter->act_cone_angle,	0x00000,	0x0590000,					PROPTYPE_FLOAT,		NULL	},
+	{ "tslerp",					&proplist_teleporter->tunnel_slerp,	0x0,		0x1,						PROPTYPE_INT,		NULL    },
+	{ "tlerp",					&proplist_teleporter->tunnel_lerp,	0x0,		0x2,						PROPTYPE_INT,		NULL    },
+	{ "tunnel_ts1",				&proplist_teleporter->tunnel_tangent_scale1,0x1,		0x40000000,					PROPTYPE_FLOAT,		TeleporterModify_SplinePropsChanged	},
+	{ "tunnel_ts2",				&proplist_teleporter->tunnel_tangent_scale2,0x1,		0x40000000,					PROPTYPE_FLOAT,		TeleporterModify_SplinePropsChanged	},
+	{ "tunnel_spline_cords",	&proplist_teleporter->tunnel_spline_cords,0x1,		0x800000,					PROPTYPE_INT,		TeleporterModify_SplinePropsChanged },
+	{ "tunnel_anim_speed",		&proplist_teleporter->tunnel_anim_speed,0x0,		0x2580000,					PROPTYPE_FLOAT,		NULL	},
+	{ "tunnel_spline",			&proplist_teleporter->tunnel_spline,	0x0,		0x3f,						PROPTYPE_INT,		NULL    },
+	{ "tunnel_tex_alpha",		&proplist_teleporter->tunnel_tex_alpha,0x0,		0xff,						PROPTYPE_INT,		NULL    },
+	{ "tunnel_len",				&proplist_teleporter->tunnel_len,		0x0,		0x4000000,					PROPTYPE_INT,		TeleporterModify_SplinePropsChanged },
+	{ "start.x",				&proplist_teleporter->start.X,		-0x7fffffff,0x7fffffff,					PROPTYPE_GEOMV,		TeleporterModify_StartPropsChanged	},
+	{ "start.y",				&proplist_teleporter->start.Y,		-0x7fffffff,0x7fffffff,					PROPTYPE_GEOMV,		TeleporterModify_StartPropsChanged	},
+	{ "start.z",				&proplist_teleporter->start.Z,		-0x7fffffff,0x7fffffff,					PROPTYPE_GEOMV,		TeleporterModify_StartPropsChanged	},
+	{ "start_rot_phi",			&proplist_teleporter->start_rot_phi,	-0x2d00000,	0x2d00000,					PROPTYPE_FLOAT,		TeleporterModify_StartPropsChanged	},
+	{ "start_rot_theta",		&proplist_teleporter->start_rot_theta,	-0x2d00000,	0x2d00000,					PROPTYPE_FLOAT,		TeleporterModify_StartPropsChanged	},
 	
 	{ NULL,				0,				0,			0,							0,					NULL	},
 };
@@ -1580,6 +1582,8 @@ void TeleporterInitType( CustomObject *base )
 
 	teleporter->tunnel_tex_alpha		= 128;
 	teleporter->id				=0;
+	
+	proplist_teleporter = teleporter;
 }
 
 // teleporter constructor (class instantiation) ---------------------------------

@@ -128,21 +128,23 @@ struct VaporTrail : CustomObject {
 
 // list of console-accessible properties --------------------------------------
 //
+VaporTrail *proplist_vaportrail;
+
 PRIVATE
 proplist_s VaporTrail_PropList[] = {
 
-	{ "lifetime",	OFS_LIFETIME,		60,		0xffff,		PROPTYPE_INT	},
-	{ "maxsegments",OFS_MAX_SEGMENTS,	10,		0xff,		PROPTYPE_INT	},
-	{ "texname",	OFS_TEXNAME,		0,	MAX_TEX_NAME,   PROPTYPE_STRING	},
-	{ "width",		OFS_WIDTH,	 -0x7fffffff,	0x7fffffff,	PROPTYPE_GEOMV	},
-	{ "delta.x",	OFS_DELTA_X, -0x7fffffff,	0x7fffffff,	PROPTYPE_GEOMV	},
-	{ "delta.y",	OFS_DELTA_Y, -0x7fffffff,	0x7fffffff,	PROPTYPE_GEOMV	},
-	{ "delta.z",	OFS_DELTA_Z, -0x7fffffff,	0x7fffffff,	PROPTYPE_GEOMV	},
-	{ "rot",		OFS_ROT,			0,		0xffff,		PROPTYPE_INT	},
-	{ "red",		OFS_RED,			0,		0xff,		PROPTYPE_INT	},
-	{ "green",		OFS_GREEN,			0,		0xff,		PROPTYPE_INT	},
-	{ "blue",		OFS_BLUE,			0,		0xff,		PROPTYPE_INT	},
-	{ "alpha",		OFS_ALPHA,			0,		0xff,		PROPTYPE_INT	},
+	{ "lifetime",	&proplist_vaportrail->lifetime,		60,		0xffff,		PROPTYPE_INT	},
+	{ "maxsegments",&proplist_vaportrail->max_segments,	10,		0xff,		PROPTYPE_INT	},
+	{ "texname",	&proplist_vaportrail->texname,		0,	MAX_TEX_NAME,   PROPTYPE_STRING	},
+	{ "width",		&proplist_vaportrail->width,	 -0x7fffffff,	0x7fffffff,	PROPTYPE_GEOMV	},
+	{ "delta.x",	&proplist_vaportrail->delta_x, -0x7fffffff,0x7fffffff,	PROPTYPE_GEOMV	},
+	{ "delta.y",	&proplist_vaportrail->delta_y, -0x7fffffff,	0x7fffffff,	PROPTYPE_GEOMV	},
+	{ "delta.z",	&proplist_vaportrail->delta_z, -0x7fffffff,	0x7fffffff,	PROPTYPE_GEOMV	},
+	{ "rot",		&proplist_vaportrail->rot,			0,		0xffff,		PROPTYPE_INT	},
+	{ "red",		&proplist_vaportrail->red,			0,		0xff,		PROPTYPE_INT	},
+	{ "green",		&proplist_vaportrail->green,			0,		0xff,		PROPTYPE_INT	},
+	{ "blue",		&proplist_vaportrail->blue,			0,		0xff,		PROPTYPE_INT	},
+	{ "alpha",		&proplist_vaportrail->alpha,			0,		0xff,		PROPTYPE_INT	},
 
 	{ NULL,			0,				0,		0,			0				}
 };
@@ -528,6 +530,7 @@ void VaporTrailInitType( CustomObject *base )
 	if ( !OBJ_InitFromCustomTypeTemplate( vapor, vapor_type_template ) ) {
 		VaporTrailInitDefaults( vapor );
 	}
+	proplist_vaportrail = vapor;
 }
 
 

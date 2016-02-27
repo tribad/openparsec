@@ -130,14 +130,16 @@ struct ShockWave : CustomObject {
 
 // list of console-accessible properties --------------------------------------
 //
+ShockWave *proplist_shockwave;
+
 PRIVATE
 proplist_s ShockWave_PropList[] = {
 
-	{ "delay",		OFS_DELAY,		0,			0xffff,		PROPTYPE_INT	},
-	{ "red",		OFS_RED,		0,			0xff,		PROPTYPE_INT	},
-	{ "green",		OFS_GREEN,		0,			0xff,		PROPTYPE_INT	},
-	{ "blue",		OFS_BLUE,		0,			0xff,		PROPTYPE_INT	},
-	{ "alpha",		OFS_ALPHA,		0,			0xff,		PROPTYPE_INT	},
+	{ "delay",		&proplist_shockwave->delay,		0,			0xffff,		PROPTYPE_INT	},
+	{ "red",		&proplist_shockwave->red,		0,			0xff,		PROPTYPE_INT	},
+	{ "green",		&proplist_shockwave->green,		0,			0xff,		PROPTYPE_INT	},
+	{ "blue",		&proplist_shockwave->blue,		0,			0xff,		PROPTYPE_INT	},
+	{ "alpha",		&proplist_shockwave->alpha,		0,			0xff,		PROPTYPE_INT	},
 
 	{ NULL,			0,			0,			0,			0				}
 };
@@ -446,6 +448,7 @@ void ShockWaveInitType( CustomObject *base )
 	if ( !OBJ_InitFromCustomTypeTemplate( shockwave, shockwave_type_template ) ) {
 		ShockWaveInitDefaults( shockwave );
 	}
+	proplist_shockwave = shockwave;
 }
 
 

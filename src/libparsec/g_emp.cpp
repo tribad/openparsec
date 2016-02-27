@@ -111,20 +111,23 @@ static char low_energy_str[]			= "low energy";
 
 // list of console-accessible properties --------------------------------------
 //
+Emp *proplist_Emp;
+Emp	*proplist_EmpUp1;
+Emp *proplist_Empup2;
 
 // emp standard
 PRIVATE
 proplist_s Emp_PropList[] = {
 
-	{ "texname",	OFS_TEXNAME,	0,	EMP_MAX_TEX_NAME,  	PROPTYPE_STRING	},
-	{ "lod",		OFS_LOD,		2,			0xff,		PROPTYPE_INT	},
-	{ "lat",		OFS_LAT,   0x0aaa,			0xffff,		PROPTYPE_INT	},
-	{ "rot",		OFS_ROT,		0,			0xffff,		PROPTYPE_INT	},
-	{ "red",		OFS_RED,		0,			0xff,		PROPTYPE_INT	},
-	{ "green",		OFS_GREEN,		0,			0xff,		PROPTYPE_INT	},
-	{ "blue",		OFS_BLUE,		0,			0xff,		PROPTYPE_INT	},
-	{ "alpha",		OFS_ALPHA,		0,			0xff,		PROPTYPE_INT	},
-	{ "damage",		OFS_DAMAGE,		0,			0xffff,		PROPTYPE_INT	},
+	{ "texname",	&proplist_Emp->texname,	0,	EMP_MAX_TEX_NAME,  	PROPTYPE_STRING	},
+	{ "lod",		&proplist_Emp->lod,		2,			0xff,		PROPTYPE_INT	},
+	{ "lat",		&proplist_Emp->lat,   0x0aaa,			0xffff,		PROPTYPE_INT	},
+	{ "rot",		&proplist_Emp->rot,		0,			0xffff,		PROPTYPE_INT	},
+	{ "red",		&proplist_Emp->red,		0,			0xff,		PROPTYPE_INT	},
+	{ "green",		&proplist_Emp->green,		0,			0xff,		PROPTYPE_INT	},
+	{ "blue",		&proplist_Emp->blue,		0,			0xff,		PROPTYPE_INT	},
+	{ "alpha",		&proplist_Emp->alpha,		0,			0xff,		PROPTYPE_INT	},
+	{ "damage",		&proplist_Emp->damage,		0,			0xffff,		PROPTYPE_INT	},
 
 	{ NULL,			0,			0,			0,			0				}
 };
@@ -134,15 +137,15 @@ proplist_s Emp_PropList[] = {
 PRIVATE
 proplist_s EmpUp1_PropList[] = {
 
-	{ "texname",	OFS_TEXNAME,	0,	EMP_MAX_TEX_NAME,  	PROPTYPE_STRING	},
-	{ "lod",		OFS_LOD,		2,			0xff,		PROPTYPE_INT	},
-	{ "lat",		OFS_LAT,   0x0aaa,			0xffff,		PROPTYPE_INT	},
-	{ "rot",		OFS_ROT,		0,			0xffff,		PROPTYPE_INT	},
-	{ "red",		OFS_RED,		0,			0xff,		PROPTYPE_INT	},
-	{ "green",		OFS_GREEN,		0,			0xff,		PROPTYPE_INT	},
-	{ "blue",		OFS_BLUE,		0,			0xff,		PROPTYPE_INT	},
-	{ "alpha",		OFS_ALPHA,		0,			0xff,		PROPTYPE_INT	},
-	{ "damage",		OFS_DAMAGE,		0,			0xffff,		PROPTYPE_INT	},
+	{ "texname",	&proplist_Emp->texname,	0,	EMP_MAX_TEX_NAME,  	PROPTYPE_STRING	},
+	{ "lod",		&proplist_Emp->lod,		2,			0xff,		PROPTYPE_INT	},
+	{ "lat",		&proplist_Emp->lat,   0x0aaa,			0xffff,		PROPTYPE_INT	},
+	{ "rot",		&proplist_Emp->rot,		0,			0xffff,		PROPTYPE_INT	},
+	{ "red",		&proplist_Emp->red,		0,			0xff,		PROPTYPE_INT	},
+	{ "green",		&proplist_Emp->green,		0,			0xff,		PROPTYPE_INT	},
+	{ "blue",		&proplist_Emp->blue,		0,			0xff,		PROPTYPE_INT	},
+	{ "alpha",		&proplist_Emp->alpha,		0,			0xff,		PROPTYPE_INT	},
+	{ "damage",		&proplist_Emp->damage,		0,			0xffff,		PROPTYPE_INT	},
 
 	{ NULL,			0,			0,			0,			0				}
 };
@@ -152,21 +155,18 @@ proplist_s EmpUp1_PropList[] = {
 PRIVATE
 proplist_s EmpUp2_PropList[] = {
 
-	{ "texname",	OFS_TEXNAME,	0,	EMP_MAX_TEX_NAME,  	PROPTYPE_STRING	},
-	{ "lod",		OFS_LOD,		2,			0xff,		PROPTYPE_INT	},
-	{ "lat",		OFS_LAT,   0x0aaa,			0xffff,		PROPTYPE_INT	},
-	{ "rot",		OFS_ROT,		0,			0xffff,		PROPTYPE_INT	},
-	{ "red",		OFS_RED,		0,			0xff,		PROPTYPE_INT	},
-	{ "green",		OFS_GREEN,		0,			0xff,		PROPTYPE_INT	},
-	{ "blue",		OFS_BLUE,		0,			0xff,		PROPTYPE_INT	},
-	{ "alpha",		OFS_ALPHA,		0,			0xff,		PROPTYPE_INT	},
-	{ "damage",		OFS_DAMAGE,		0,			0xffff,		PROPTYPE_INT	},
+	{ "texname",	&proplist_Emp->texname,	0,	EMP_MAX_TEX_NAME,  	PROPTYPE_STRING	},
+	{ "lod",		&proplist_Emp->lod,		2,			0xff,		PROPTYPE_INT	},
+	{ "lat",		&proplist_Emp->lat,   0x0aaa,			0xffff,		PROPTYPE_INT	},
+	{ "rot",		&proplist_Emp->rot,		0,			0xffff,		PROPTYPE_INT	},
+	{ "red",		&proplist_Emp->red,		0,			0xff,		PROPTYPE_INT	},
+	{ "green",		&proplist_Emp->green,		0,			0xff,		PROPTYPE_INT	},
+	{ "blue",		&proplist_Emp->blue,		0,			0xff,		PROPTYPE_INT	},
+	{ "alpha",		&proplist_Emp->alpha,		0,			0xff,		PROPTYPE_INT	},
+	{ "damage",		&proplist_Emp->damage,		0,			0xffff,		PROPTYPE_INT	},
 
 	{ NULL,			0,			0,			0,			0				}
 };
-
-
-
 
 // draw emp -------------------------------------------------------------------
 //
@@ -628,6 +628,7 @@ void EmpInitType( CustomObject *base )
 	if ( !OBJ_InitFromCustomTypeTemplate( emp, emp_type_template[ 0 ] ) ) {
 		EmpInitDefaults( emp, 0 );
 	}
+	proplist_Emp = emp;
 }
 
 
@@ -641,6 +642,7 @@ void EmpInitTypeUp1( CustomObject *base )
 	if ( !OBJ_InitFromCustomTypeTemplate( emp, emp_type_template[ 1 ] ) ) {
 		EmpInitDefaults( emp, 1 );
 	}
+	proplist_EmpUp1 = emp;
 }
 
 
@@ -654,6 +656,7 @@ void EmpInitTypeUp2( CustomObject *base )
 	if ( !OBJ_InitFromCustomTypeTemplate( emp, emp_type_template[ 2 ] ) ) {
 		EmpInitDefaults( emp, 2 );
 	}
+	proplist_Empup2 = emp;
 }
 
 

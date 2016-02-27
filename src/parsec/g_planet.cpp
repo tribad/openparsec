@@ -102,22 +102,23 @@ extern int headless_bot;
 
 // list of console-accessible properties --------------------------------------
 //
+Planet *proplist_planet;
+
 PRIVATE
 proplist_s Planet_PropList[] = {
 
 
-	{ "rotspeed",		 OFS_ROTSPEED,	 		0,			0xffff,			  PROPTYPE_INT,	   NULL	},
-	{ "orbitspeed",		 OFS_ORBITSPEED,		0,			0xffff,			  PROPTYPE_INT,	   NULL	},
-	{ "orbitradius",	 OFS_ORBITRADIUS, 		0x10000,	0x4000000,		  PROPTYPE_FLOAT,  NULL	},
-	{ "name",			 OFS_NAME,		 		0,			MAX_PLANET_NAME,  PROPTYPE_STRING, NULL	},
-	{ "hasring",		 OFS_HASRING, 	 		0x0,		0x1,		 	  PROPTYPE_INT,    NULL	},
-	{ "ringouterradius", OFS_RINGOUTERRADIUS, 	0x10000,	0x4000000,	 	  PROPTYPE_FLOAT,  NULL	},
-	{ "ringinnerradius", OFS_RINGINNERRADIUS, 	0x10000,	0x4000000,	 	  PROPTYPE_FLOAT,  NULL	},
-	{ "ringtexname",	 OFS_RINGTEXNAME, 		0,			MAX_RING_TEXNAME, PROPTYPE_STRING, NULL	},
+	{ "rotspeed",		 &proplist_planet->RotSpeed,	 		0,			0xffff,			  PROPTYPE_INT,	   NULL	},
+	{ "orbitspeed",		 &proplist_planet->OrbitSpeed,		0,			0xffff,			  PROPTYPE_INT,	   NULL	},
+	{ "orbitradius",	 &proplist_planet->OrbitRadius, 		0x10000,	0x4000000,		  PROPTYPE_FLOAT,  NULL	},
+	{ "name",			 &proplist_planet->Name,		 		0,			MAX_PLANET_NAME,  PROPTYPE_STRING, NULL	},
+	{ "hasring",		 &proplist_planet->HasRing, 	 		0x0,		0x1,		 	  PROPTYPE_INT,    NULL	},
+	{ "ringouterradius", &proplist_planet->RingOuterRadius, 	0x10000,	0x4000000,	 	  PROPTYPE_FLOAT,  NULL	},
+	{ "ringinnerradius", &proplist_planet->RingInnerRadius, 	0x10000,	0x4000000,	 	  PROPTYPE_FLOAT,  NULL	},
+	{ "ringtexname",	 &proplist_planet->RingTexName, 		0,			MAX_RING_TEXNAME, PROPTYPE_STRING, NULL	},
 
 	{ NULL,				0,					0,			0,				  0,			   NULL	},
 };
-
 
 // type fields init function for planet ---------------------------------------
 //
@@ -143,6 +144,8 @@ void PlanetInitType( CustomObject *base )
 	planet->RingTexture		= NULL;
 
 	planet->NumOrbitShips	= 0;
+	
+	proplist_planet = planet;
 }
 
 

@@ -153,7 +153,7 @@ PRIVATE void	StargateModify_CreateActiveParticles( CustomObject *base );
 
 // list of console-accessible properties --------------------------------------
 //
-PRIVATE
+/*PRIVATE
 proplist_s Stargate_PropList[] = {
 
 	{ "rotspeed",		OFS_ROTSPEED,		0,			0xffff,						PROPTYPE_INT,		NULL	},
@@ -177,11 +177,11 @@ proplist_s Stargate_PropList[] = {
 
 	{ NULL,				0,				0,			0,							0,					NULL	},
 };
-
+*/
 Stargate *proplist_stargate;
 
 PRIVATE
-proplist_s_new Stargate_PropList_new[] = {
+proplist_s Stargate_PropList_new[] = {
 	
 	{ "rotspeed",		&proplist_stargate->rotspeed,		0,			0xffff,						PROPTYPE_INT,		NULL	},
 	{ "radius",			&proplist_stargate->radius,			0x10000,	0x4000000,					PROPTYPE_FLOAT,		NULL	},

@@ -134,28 +134,9 @@ struct LaserBeam : CustomObject {
 
 // list of console-accessible properties --------------------------------------
 //
-PRIVATE
-proplist_s LaserBeam_PropList[] = {
-
-//	{ "lifetime",	OFS_LIFETIME,	0,	0xffff,		PROPTYPE_INT	},
-	{ "width",		OFS_WIDTH,	 -0x7fffffff,	0x7fffffff,	PROPTYPE_GEOMV	},
-	{ "texname",	OFS_TEXNAME,	0,		MAX_TEX_NAME,   PROPTYPE_STRING	},
-	{ "delta.x",	OFS_DELTA_X, -0x7fffffff,	0x7fffffff,	PROPTYPE_GEOMV	},
-	{ "delta.y",	OFS_DELTA_Y, -0x7fffffff,	0x7fffffff,	PROPTYPE_GEOMV	},
-	{ "delta.z",	OFS_DELTA_Z, -0x7fffffff,	0x7fffffff,	PROPTYPE_GEOMV	},
-	{ "range",		OFS_RANGE,		0x0,	0x300000,		PROPTYPE_FLOAT	},
-	{ "energyconsumption",	OFS_ENERGY,		0,	0xffff,		PROPTYPE_INT	},
-	{ "hitpoints",	OFS_HITPOINTS_PER_FRAME,	0,	0xffff,	PROPTYPE_INT	},
-	{ "red",		OFS_RED,		0,	0xff,		PROPTYPE_INT	},
-	{ "green",		OFS_GREEN,		0,	0xff,		PROPTYPE_INT	},
-	{ "blue",		OFS_BLUE,		0,	0xff,		PROPTYPE_INT	},
-	{ "alpha",		OFS_ALPHA,		0,	0xff,		PROPTYPE_INT	},
-
-	{ NULL,			0,			0,		0,				0				}
-};
-
 LaserBeam *proplist_Laser;
- proplist_s_new LaserBeam_PropList_new[] = {
+
+ proplist_s LaserBeam_PropList[] = {
  //	{ "lifetime",	OFS_LIFETIME,	0,	0xffff,		PROPTYPE_INT	},
 	{ "width",		&proplist_Laser->width,	 -0x7fffffff,	0x7fffffff,	PROPTYPE_GEOMV	},
 	{ "texname",	&proplist_Laser->texname,	0,		MAX_TEX_NAME,   PROPTYPE_STRING	},
@@ -549,6 +530,7 @@ void LaserBeamInitType( CustomObject *base )
 	if ( !OBJ_InitFromCustomTypeTemplate( laserbeam, laserbeam_type_template ) ) {
 		LaserBeamInitDefaults( laserbeam );
 	}
+	proplist_Laser = laserbeam;
 }
 
 
