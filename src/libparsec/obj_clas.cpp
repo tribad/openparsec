@@ -135,7 +135,7 @@ void InitDefaultClassFields( GenObject *classpo, dword classid )
 	// (NumObjClasses will only be increased afterwards.)
 
 	switch ( classid ) {
-
+			
 		case SHIP_CLASS_1:
 			break;
 
