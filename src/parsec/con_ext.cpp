@@ -20,6 +20,9 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */ 
+//
+// C++ header
+#include <sstream>
 
 // C library
 #include <ctype.h>
@@ -898,7 +901,9 @@ int Cmd_SetGameLoopBatchName( char *cstr )
 	char *name = strtok( cstr, " " );
 
 	if ( name == NULL ) {
-		if ( *gameloop_start_script != 0 ) {
+		//
+		//  Check if script name is set
+		if ( *gameloop_start_script != '\0' ) {
 			// display name of currently selected
 			// gameloop start-script
 			CON_AddLine( gameloop_start_script );
@@ -915,9 +920,11 @@ int Cmd_SetGameLoopBatchName( char *cstr )
 
 	if ( CheckBatchName( name ) ) {
 		// set new name for gameloop start-script
+		std::ostringstream oss;
+
+		oss << "gameloop start-script set to: " << name;
 		strcpy( gameloop_start_script, name );
-		sprintf( paste_str, "gameloop start-script set to: %s", gameloop_start_script );
-		CON_AddLine( paste_str );
+		CON_AddLine( oss.str().c_str() );
 	} else {
 		CON_AddLine( "invalid script name." );
 	}

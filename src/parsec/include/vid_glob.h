@@ -93,7 +93,7 @@ extern int*				VidInfo_SupportedTexFormats;
 
 
 // determine if video mode is available using mode info table
-#define VID_MODE_AVAILABLE(x)			( x >= 0 && x < Resolutions.size() )
+#define VID_MODE_AVAILABLE(x)			( x >= 0 && x < (int)(Resolutions.size() ))
 
 // determine current color depth
 #define VID_CUR_COLBITS					( GameScreenBPP )

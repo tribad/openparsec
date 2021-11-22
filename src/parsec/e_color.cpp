@@ -303,8 +303,6 @@ void CreateFontTextureData8( int fontid, int numvalid, char *texdata, word *uvta
 		// convert to alpha/intensity char
 		for ( int row = fonth; row > 0; row-- ) {
 			for ( int col = fontw; col > 0; col-- ) {
-				ASSERT( src < (byte*)( fdata + ftsiz ) );
-				ASSERT( dst < (byte*)( texdata + datasize ) );
 				byte v = *src++;
 				*dst++ = ( v != 0x00 ) ? 0xff : 0x00;
 			}
@@ -323,9 +321,6 @@ void CreateFontTextureData8( int fontid, int numvalid, char *texdata, word *uvta
 			curv   += fonth * 2;
 			destofs = curv * texwidth;
 		}
-
-		ASSERT( curv <= (dword)(texheight - fonth * 2) );
-		ASSERT( destofs < datasize - fontw * fonth * 2 );
 	}
 }
 
@@ -359,8 +354,6 @@ void CreateFontTextureData32( int fontid, int numvalid, char *texdata, word *uvt
 		// convert to rgba char
 		for ( int row = fonth; row > 0; row-- ) {
 			for ( int col = fontw; col > 0; col-- ) {
-				ASSERT( src < (byte*)fdata + ftsiz );
-				ASSERT( dst < (dword*)texdata + datasize );
 				byte v = *src++;
 				*dst++ = ( v != 0x00 ) ? 0xffffffff : 0x00000000;
 			}
@@ -384,8 +377,6 @@ void CreateFontTextureData32( int fontid, int numvalid, char *texdata, word *uvt
 			destofs = curv * texwidth * 4;
 		}
 
-		ASSERT( curv <= (dword)(texheight - fonth * 2) );
-		ASSERT( destofs < datasize - fontw * fonth * 2 * 4 );
 	}
 }
 

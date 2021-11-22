@@ -21,7 +21,9 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */ 
-
+//
+// C++ header
+#include <sstream>
 // C library
 #include <stddef.h>
 #include <stdio.h>
@@ -222,14 +224,12 @@ int NET_RmEvSendText( const char *text )
 	if(strlen(text) == 0)
 		return 1;
 	if ( NetConnected == NETWORK_GAME_ON ) {
+		std::ostringstream oss;
 
 		// make copy of text
-		strncpy( paste_str, LocalPlayerName, MAX_PLAYER_NAME);
-        strncat( paste_str," ",1);
-        strncat( paste_str, text, (PASTE_STR_LEN - MAX_PLAYER_NAME - 1));
-		paste_str[ PASTE_STR_LEN ] = 0;
+		oss << LocalPlayerName << " " << text;
 
-		int textlen  = strlen( text ) + strlen(LocalPlayerName) + 1; //Name + space(1) + text
+		int textlen  = oss.str().size();  //Name + space(1) + text
 		int	blocksiz = sizeof( RE_SendText ) + textlen;
 		// terminating zero-byte is included in sizeof( RE_SendText )
 
@@ -241,13 +241,15 @@ int NET_RmEvSendText( const char *text )
 		ASSERT( blocksiz > 2 );
 		if ( blocksiz > 255 ) {
 			blocksiz = 255;
-			paste_str[ 255 - sizeof( RE_SendText ) ] = 0;
 		}
 
 		RE_SendText *re_sendtext  = (RE_SendText *) RE_List_CurPos;
 		re_sendtext->RE_Type 	  = RE_SENDTEXT;
 		re_sendtext->RE_BlockSize = blocksiz;
-		strcpy( re_sendtext->TextStart, paste_str );
+		//
+		//  Copy 255 bytes of text inclusive the \0
+		//  This is why we substract 1 from the calculated size.
+		strcpy( re_sendtext->TextStart, oss.str().substr(0, blocksiz - sizeof(RE_SendText) -1).c_str() );
 
 		re_sendtext = (RE_SendText *) ( (char *)re_sendtext + blocksiz );
 		re_sendtext->RE_Type	  = RE_EMPTY;

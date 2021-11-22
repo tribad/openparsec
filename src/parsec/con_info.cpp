@@ -22,11 +22,10 @@
  */ 
 
 // C library
-#include <ctype.h>
-#include <stddef.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstddef>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 // compilation flags/debug support
 #include "config.h"

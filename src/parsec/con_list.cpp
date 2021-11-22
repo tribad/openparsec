@@ -689,7 +689,7 @@ void ListVidModes_ctd()
 {
 	// continued run
 	int cnt = 0;
-	while ( ( comm_to_print < Resolutions.size() ) &&
+	while ( ( comm_to_print < (int)Resolutions.size() ) &&
 			( DispVidMode( &cnt, comm_to_print ) ) )
 		comm_to_print++;
 
@@ -706,7 +706,7 @@ void Cmd_ListVidModes()
 
 	// first run
 	int cnt = 0;
-	while ( ( comm_to_print < Resolutions.size() ) &&
+	while ( ( comm_to_print < (int)Resolutions.size() ) &&
 			( DispVidMode( &cnt, comm_to_print ) ) )
 		comm_to_print++;
 

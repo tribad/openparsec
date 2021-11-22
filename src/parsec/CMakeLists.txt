@@ -95,7 +95,11 @@ add_feature_info(FREETYPE_FOUND "libfreetype" "FreeType lib is needed to build t
 include_directories(${FREETYPE_INCLUDE_DIR})
 include_directories(${GLEW_INCLUDE_DIRS})
 
-add_compile_options (-O0 -g -Wall -std=c++14 -fPIC -DPARSEC_CLIENT -DDEBUG)
+add_compile_options (-O0 -g -Wall -std=c++14 -fPIC -DPARSEC_CLIENT -DDEBUG -DPARSEC_DEBUG)
+##
+##  To get rid of the anoying warning about offsetof we add that until some other way to handle the object properties
+##  have been introduced.
+add_compile_options (-Wno-invalid-offsetof)
 link_libraries(SDL2_mixer)
 
 include_directories(${CMAKE_SOURCE_DIR} ../libparsec/include include ../libraries)

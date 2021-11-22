@@ -221,7 +221,7 @@ int SYS_RegisterPackage( const char *packname, size_t baseofs, char *prefix )
 		package_items[ packid ][ curit ].file	 = namelist;
 		package_items[ packid ][ curit ].foffset = diskitem->foffset;
 		package_items[ packid ][ curit ].flength = diskitem->flength;
-		package_items[ packid ][ curit ].fp		 = (FILE *) diskitem->fp;
+		package_items[ packid ][ curit ].fp		 = nullptr;           //  Formerly tryed to copy 32-bit int into the FILE*
 		package_items[ packid ][ curit ].fcurpos = diskitem->fcurpos;
 
 		namelist += prefixlen + strlen( diskitems[ curit ].file ) + 1;

@@ -217,7 +217,7 @@ void RO_TraverseBSPTree( dword bspnode )
 	// use dot-product to determine visibility
 	sprod = DOT_PRODUCT( &viewvec, normal );
 
-testplane:
+// testplane:
 
 	if ( CHECKBSPPLANE( sprod, bspnode, poly, vindxs, face ) ) {
 

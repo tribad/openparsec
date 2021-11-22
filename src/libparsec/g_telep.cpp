@@ -1722,9 +1722,10 @@ void TeleporterDestroy( CustomObject *base )
 #ifndef PARSEC_SERVER
 	// ensure pending callbacks are destroyed to avoid
 	// calling them with invalid pointers
-	int numremoved = CALLBACK_DestroyCallback( callback_type, (void *) base );
-	if(!headless_bot)
-		ASSERT( numremoved <= 1 );
+	if(!headless_bot) {
+		int numremoved = CALLBACK_DestroyCallback(callback_type, (void *) base);
+		ASSERT(numremoved <= 1);
+	}
 #endif
 }
 

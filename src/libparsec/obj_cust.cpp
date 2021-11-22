@@ -70,8 +70,8 @@ dword OBJ_FetchCustomTypeId( const char *name )
 	for ( int tid = 0; tid < num_custom_types; tid++ )
 		if ( strcmp( custom_type_info[ tid ].type_name, name ) == 0 )
 			return custom_type_info[ tid ].type_id;
-		
-		return TYPE_ID_INVALID;
+
+	return TYPE_ID_INVALID;
 }
 
 

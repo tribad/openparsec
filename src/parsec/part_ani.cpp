@@ -771,8 +771,6 @@ void CalcLightningAnimation( lightning_pcluster_s *cluster )
 	if ( ( cluster->framecount -= CurScreenRefFrames ) < 0 ) {
 		cluster->framecount = cluster->sizzlespeed;
 
-		ASSERT( OBJECT_TYPE_SHIP( shippo ) );
-
 		Xmatrx tmatrx;
 #if ( CT_LIGHTNING & CT_GENOBJECTRELATIVE_OBJ_MASK )
 		MakeIdMatrx( tmatrx );

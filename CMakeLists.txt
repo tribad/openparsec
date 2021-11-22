@@ -77,7 +77,6 @@ add_subdirectory(src)
 add_custom_target(the_whole ALL)
 
 add_dependencies(the_whole parsec)
-
 ##
 ##
 ##  Here we describe the files and positions of

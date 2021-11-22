@@ -364,18 +364,18 @@ int NET_DelSlotRequest( node_t *node )
 			}
 		}
 		
-		if ( nodefound ) {
-			DBGTXT( MSGOUT( "NET_DelSlotRequest(): removed entry." ); );
-			ADXTXT( NETs_PrintNode( node ); );
-		}
-		
-		// reset queue if only deleted entries found
-		if ( ( NumSlotRequests > 0 ) && skipall ) {
-			DBGTXT( MSGOUT( "NET_DelSlotRequest(): reset queue." ); );
-			NET_ResetSlotReqQueue();
-		}
-		
-		return nodefound;
+	if ( nodefound ) {
+		DBGTXT( MSGOUT( "NET_DelSlotRequest(): removed entry." ); );
+		ADXTXT( NETs_PrintNode( node ); );
+	}
+
+	// reset queue if only deleted entries found
+	if ( ( NumSlotRequests > 0 ) && skipall ) {
+		DBGTXT( MSGOUT( "NET_DelSlotRequest(): reset queue." ); );
+		NET_ResetSlotReqQueue();
+	}
+
+	return nodefound;
 }
 
 

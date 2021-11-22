@@ -1478,7 +1478,7 @@ geomv_t OD2_Geomv_in( float value )
 PRIVATE
 size_t OD2_CreateObject( OD2_Root32 *cobj32, dword flags, shader_s *shader )
 {
-	ASSERT( cobj != NULL );
+	ASSERT( cobj32 != NULL );
 
 	// default flags may be requested
 	if ( flags == OBJLOAD_DEFAULT ) {
@@ -1496,7 +1496,7 @@ size_t OD2_CreateObject( OD2_Root32 *cobj32, dword flags, shader_s *shader )
 	// swap important header fields
     cobj->rootflags			= SWAP_32( cobj32->rootflags );
     cobj->rootflags2		= SWAP_32( cobj32->rootflags2 );
-    cobj->InstanceSize		= SWAP_32( cobj32->InstanceSize );
+    cobj->InstanceSize		= SWAP_32( sizeof( OD2_Root ) );
     cobj->NumVerts 			= SWAP_32( cobj32->NumVerts );
     cobj->NumPolyVerts 		= SWAP_32( cobj32->NumPolyVerts );
     cobj->NumNormals 		= SWAP_32( cobj32->NumNormals );

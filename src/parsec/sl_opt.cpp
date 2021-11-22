@@ -23,7 +23,9 @@
 // compilation flags/debug support
 #include "config.h"
 
-
+//
+//  C++ header
+#include <sstream>
 
 // C library
 #include <ctype.h>
@@ -441,9 +443,11 @@ void SYSs_CheckCommandLine( int argc, char **argv )
 	// set default name of local player
 	srand(time(NULL));
 	int playerRand = rand() % 999 + 1;
-	
-	strncpy( LocalPlayerName,default_player_name,MAX_PLAYER_NAME );
-	sprintf(LocalPlayerName,"%s%d",LocalPlayerName,playerRand);
+	std::ostringstream oss;
+
+	oss << default_player_name << playerRand;
+	strncpy( LocalPlayerName, oss.str().c_str(), MAX_PLAYER_NAME );
+
 	LocalPlayerName[ MAX_PLAYER_NAME ] = 0;
 
 	// register default command line options

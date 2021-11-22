@@ -74,7 +74,6 @@ static char paste_str[ PASTE_STR_LEN + 1 ];
 // string constants
 static char text_not_sent[] 	= "text could not be sent.";
 static char say_hint[]			= "use say? where ? is [0..9].";
-static char set_hint[]			= "use set? where ? is [0..9].";
 static char undef_macro[]		= "macro is undefined.";
 static char you_said[]			= "you said: ";
 

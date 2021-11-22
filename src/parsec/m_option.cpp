@@ -1455,7 +1455,7 @@ void UpdateBlinkStates()
 	diffvid += ( vidsubsys_id	!= prev_vidsubsys_id );
 	diffvid += ((cur_res		!= GameScreenRes));
 	diffvid += ( cur_depthmode	!= GameScreenBPP );
-	diffvid += ( (dword)cur_winstatus != GameScreenWindowed );
+	diffvid += ( cur_winstatus != GameScreenWindowed );
 	diffvid += ( cur_flipsync	!= FlipSynched );
 
 	option_apply_blinking[ APPLY_VID_OPT ] = ( diffvid > 0 );

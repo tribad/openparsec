@@ -224,9 +224,9 @@ E_REList* NET_Stream::GetNextReliableToSend()
 {
 	// sanety checks
 	if( YOU_ACK_MessageId >= Out_MessageId )
-        return NULL;
+		{ return NULL; }
     if( YOU_ACK_ReliableMessageId >= Out_ReliableMessageId )
-        return NULL;
+		{ return NULL; }
 
 	StreamFIFOEntry_s*	pEntry  = &m_FIFOEntries[ m_nFIFO_ReadPos ];
 	E_REList*			pREList = pEntry->m_pREList;

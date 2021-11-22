@@ -129,7 +129,6 @@
 
 
 // string constants
-static char joystick_disabled[]		= "Joystick code is disabled.\n";
 static char exiting_game[]			= "Exiting Parsec...\n";
 
 

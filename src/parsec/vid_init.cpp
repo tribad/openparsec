@@ -382,7 +382,7 @@ void VID_SetResolutionVars()
 
 	int bpp  = GameScreenBPP;
 
-	int modeindx = GetResolutionIndex(GameScreenRes.width, GameScreenRes.height);
+	int  modeindx = GetResolutionIndex(GameScreenRes.width, GameScreenRes.height);
 
 	if (!VID_MODE_AVAILABLE(modeindx)) {
 		modeindx = (int) Resolutions.size() - 1;

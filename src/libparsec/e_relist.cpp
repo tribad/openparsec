@@ -109,6 +109,7 @@ static size_t re_sizes[] = {
 
 // table of remote event sizes ------------------------------------------------
 //
+#ifndef PARSEC_CLIENT
 static const char* re_names[] = { //Used by server
 	"RE_EMPTY",			
 	"RE_DELETED",			
@@ -143,7 +144,7 @@ static const char* re_names[] = { //Used by server
     "RE_GENERIC"
 	//FIXME: use NET_UTIL::PrInf_* functions and E_REList::Dump
 };
-
+#endif
 // default ctor ---------------------------------------------------------------
 //
 E_REList::E_REList()
