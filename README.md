@@ -1,15 +1,15 @@
-OpenParsec
-==========
+#OpenParsec
+This README has been taken from the original OpenParsec repository and extend with some "contribution" info at the end.
 
 Hit us up on discord!!! https://discord.gg/G7ZejM5N5h
 
-Gameplay demonstration:
+##Gameplay demonstration:
 
 This is the latest gameplay video it's a bit old but contains all the 0.2 features. Expect an updated video before or after 0.3 release
 
 http://youtu.be/plak2rPU5S0
 
-To build OpenParsec:
+##To build OpenParsec:
 
 On Linux:
 - Install premake or grab the premake4 binary and put it somewhere in your $PATH (http://industriousone.com/premake/download)
@@ -37,3 +37,11 @@ Notes:
 - premake binaries get copied into parsec_root/{client,server}
 - You will need a copy of the openparsec-assets to run the client (https://github.com/OpenParsec/openparsec-assets)
 - For Raspberry Pi there is a special premake-rpi folder set up to link to GLES. You will need the broadcom packages installed in addition to SDL2 and SDl2_mixer
+
+## When contributing
+There are some rules that I found very important with my first try to not only make changes but get the pull request accepted.
+These rules are valid for my fork. For the ones used in the openparsec repo check if they have information about that.
+
+### Code Styles to know
+- Native Line-Endings are used for any text file
+- No tabs in source files
