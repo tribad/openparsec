@@ -7,7 +7,7 @@ if ( ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR} )
     message( FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there. You may need to remove CMakeCache.txt." )
 endif()
 
-project(openparsec CXX)
+project(parsec_server CXX)
 ##
 ##  Load values from the os-release information.
 if (EXISTS "/etc/os-release")
@@ -27,28 +27,26 @@ else()
     message(WARNING "os-release info not found. Assuming a windows build.")
 endif()
 ##
-##  Load openparsec version number
-if (EXISTS ${CMAKE_SOURCE_DIR}/VERSION)
-    file(STRINGS ${CMAKE_SOURCE_DIR}/VERSION VINFO)
-    foreach(NameAndValue ${VINFO})
-        # Strip leading spaces
-        string(REGEX REPLACE "^[ ]+" "" NameAndValue ${NameAndValue})
-        # Find variable name
-        string(REGEX MATCH "^[^=]+" Name ${NameAndValue})
-        # Find the value
-        string(REPLACE "${Name}=" "" Value ${NameAndValue})
-        # Set the variable
-        set(${Name} "${Value}")
-    endforeach()
-    set(OPENPARSEC_VERSION_MAJOR "${VERSION_MAJOR}")
-    set(OPENPARSEC_VERSION_MINOR "${VERSION_MINOR}")
-    set(OPENPARSEC_VERSION_PATCH "${VERSION_PATCH}")
+##  Here we look for the OpenGL support.
+set(OpenGL_GL_PREFERENCE GLVND)
+find_package (OpenGL COMPONENTS OpenGL REQUIRED)
+
+if(CMAKE_VERSION VERSION_LESS "3.7.0")
+    set(CMAKE_INCLUDE_CURRENT_DIR ON)
+    set(OPENPARSEC_GL_LIB ${OPENGL_gl_LIBRARY})
+    set(OPENPARSEC_GLU_LIB ${OPENGL_glu_LIBRARY})
 else()
-    message(WARNING "version info not found")
-    set(OPENPARSEC_VERSION_MAJOR "0")
-    set(OPENPARSEC_VERSION_MINOR "2")
-    set(OPENPARSEC_VERSION_PATCH "1")
+    set(OPENPARSEC_TARGETS OpenGL::OpenGL OpenGL::GLU Freetype::Freetype)
 endif()
+
+##
+##  Here we try to find the freetype library support.
+
+set(OPENPARSEC_FREETYPE_LIB "freetype")
+
+find_package(Freetype REQUIRED)
+find_package(GLEW REQUIRED)
+find_package(SDL2)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -66,17 +64,99 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${ECM_MODULE_PATH})
 
 include(FeatureSummary)
 include(GNUInstallDirs)
+
+
+add_feature_info(FREETYPE_FOUND "libfreetype" "FreeType lib is needed to build the openparsec project" "http://freetype.sf.net" FALSE "" "")
 ##
 ##  
-add_compile_options (-O0 -g -Wall -std=c++14 -fPIC)
+include_directories(${FREETYPE_INCLUDE_DIR})
+include_directories(${GLEW_INCLUDE_DIRS})
 
-include_directories(src ${CMAKE_SOURCE_DIR})
+add_compile_options (-O0 -g -Wall -std=c++14 -fPIC -DPARSEC_SERVER -DDEBUG -DPARSEC_DEBUG)
+##
+##  To get rid of the anoying warning about offsetof we add that until some other way to handle the object properties
+##  have been introduced.
+add_compile_options (-Wno-invalid-offsetof)
+link_libraries(SDL2_mixer)
 
-add_subdirectory(src)
+include_directories(${CMAKE_SOURCE_DIR} ../libparsec/include include ../libraries)
+##  Static linkage to the povmodeler sub-systems.
+##  Using --start-group/--end-group to have a recursive symbol resolution.
 
-add_custom_target(the_whole ALL)
+add_executable(${PROJECT_NAME}
+        con_act_sv.cpp
+        con_aux_sv.cpp
+        con_com_sv.cpp
+        con_ext_sv.cpp
+        con_info_sv.cpp
+        con_int_sv.cpp
+        con_list_sv.cpp
+        con_load_sv.cpp
+        con_main_sv.cpp
+        con_std_sv.cpp
+        e_colldet_sv.cpp
+        e_connmanager.cpp
+        e_gameserver.cpp
+        e_global_sv.cpp
+        e_packethandler.cpp
+        e_simnetinput.cpp
+        e_simnetoutput.cpp
+        e_simplayerinfo.cpp
+        e_simulator.cpp
+        e_world.cpp
+        g_main_sv.cpp
+        g_player.cpp
+        g_stgate_sv.cpp
+        inp_main_sv.cpp
+        MasterServer.cpp
+        MasterServerItem.cpp
+        net_packetdriver.cpp
+        net_util_sv.cpp
+        nl_udpdriver.cpp
+        sl_util_sv.cpp
+        sv_main.cpp
+        sys_err_sv.cpp
+        sys_msg_sv.cpp
+        sys_util_sv.cpp
 
-add_dependencies(the_whole parsec parsec_server)
+    ../libparsec/net_stream.cpp
+    ../libparsec/con_arg.cpp
+    ../libparsec/g_extra.cpp
+    ../libparsec/utl_bsp.cpp
+    ../libparsec/e_relist.cpp
+    ../libparsec/obj_cust.cpp
+    ../libparsec/g_emp.cpp
+    ../libparsec/g_telep.cpp
+    ../libparsec/sl_path.cpp
+    ../libparsec/utl_cull.cpp
+    ../libparsec/net_swap.cpp
+    ../libparsec/utl_clpo.cpp
+    ../libparsec/net_pckt_gmsv.cpp
+    ../libparsec/utl_math2.cpp
+    ../libparsec/obj_type.cpp
+    ../libparsec/con_tab.cpp
+    ../libparsec/con_vald.cpp
+    ../libparsec/obj_creg.cpp
+    ../libparsec/obj_odt.cpp
+    ../libparsec/sys_date.cpp
+    ../libparsec/debug.cpp
+    ../libparsec/sys_swap.cpp
+    ../libparsec/net_util.cpp
+    ../libparsec/sw_path.cpp
+    ../libparsec/sys_file.cpp
+    ../libparsec/e_modulemanager.cpp
+    ../libparsec/utl_clip.cpp
+    ../libparsec/net_wrap.cpp
+    ../libparsec/utl_logfile.cpp
+    ../libparsec/sw_timer.cpp
+    ../libparsec/obj_clas.cpp
+    ../libparsec/sl_timer.cpp
+    ../libparsec/utl_math.cpp
+    )
+
+target_link_libraries(${PROJECT_NAME} OpenGL::OpenGL GLEW::GLEW SDL2::SDL2 ncurses)
+
+
 ##
 ##
 ##  Here we describe the files and positions of
