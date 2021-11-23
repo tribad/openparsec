@@ -418,7 +418,6 @@ int	NET_UDPDriver::_RetrieveLocalIP()
 //
 int	NET_UDPDriver::_RetrieveLocalIP()
 {
-	//FIXME: implement :)
 	int selected_interface = 0;
 	
 	int sockfd = socket( AF_INET, SOCK_DGRAM, 0 );
@@ -427,81 +426,52 @@ int	NET_UDPDriver::_RetrieveLocalIP()
 		return FALSE;
 	}
 
-	int   infolen = sizeof( struct ifreq ) * 10;
-	char* infobuf = NULL;
-
+	int           infocount = 1;
 	struct ifconf ifc;
 
-	infobuf = (char *) ALLOCMEM( infolen );
-	if ( infobuf == NULL )
-		OUTOFMEM( 0 );
-
-	ifc.ifc_len = infolen;
-	ifc.ifc_buf = infobuf;
-
-
-	// get all interface configurations into buffer
-	int lastlen = sizeof( struct ifreq ) * 10;
+	//  get all interface configurations into buffer
+	//  Trying with the initial size and increase it until all interface descriptions
+	//  are in the buffer.
+	int lastlen = -1;
 	for ( ;; ) {
+	    	ifc.ifc_ifcu.ifcu_req = new struct ifreq[infocount];
+		ifc.ifc_len           = infocount * sizeof(struct ifreq);
+		lastlen               = ifc.ifc_len;
 
-		infobuf = (char *) ALLOCMEM( infolen );
-		if ( infobuf == NULL )
-			OUTOFMEM( 0 );
-
-		ifc.ifc_len = infolen;
-		ifc.ifc_buf = infobuf;
-
+		//
+		// clear the buffer so we can see it on the analyzer loop as empty.
+		memset(ifc.ifc_ifcu.ifcu_req, 0, ifc.ifc_len);
 		if ( ioctl( sockfd, SIOCGIFCONF, &ifc ) < 0 ) {
-			if ( ( errno != EINVAL ) || ( lastlen != 0 ) ) {
+			if ( errno != EINVAL ) {
 				MSGOUT( "NET_UDPDriver::_RetrieveLocalIP(): ioctl error." );
-				FREEMEM( infobuf );
+				delete [] ifc.ifc_ifcu.ifcu_req;
 				CLOSESOCKET( sockfd );
 				return FALSE;
 			}
 		} else {
+		        // after the call ifc.ifc_len gets updated.
 			// if ifc.ifc_len is less than lastlen, we got it all.
 			if ( ifc.ifc_len < lastlen ){
 				break;
 			}
-			// if not, save the last length
-			lastlen = ifc.ifc_len;
-
-			//make it bigger by 1 record
-			infolen += sizeof( struct ifreq );
-
+		    	infocount++;
 		}
 
 		//infolen += sizeof( struct ifreq ) * 10;
-		FREEMEM( infobuf );
+	    	delete [] ifc.ifc_ifcu.ifcu_req;
 	}
 
 	int rc = 0;
-	int ifnum = -1;
 
 	// analyze all interface configurations in buffer
-	for ( char *ptr = infobuf; ptr < infobuf + ifc.ifc_len; ) {
-
-		struct ifreq* ifr = (struct ifreq *) ptr;
-
-		// advance to next structure in buffer
-
-#ifdef SYSTEM_MACOSX_UNUSED
-		int len = max( sizeof(struct sockaddr), ifr->ifr_addr.sa_len );
-#else
-		int len = sizeof(struct sockaddr);
-#endif
-
-		//		int len = max( sizeof(struct sockaddr), ifr->ifr_addr.sa_len );
-
-		ptr += sizeof( ifr->ifr_name ) + len;
-
+	for ( struct ifreq *ptr = ifc.ifc_ifcu.ifcu_req; (ptr->ifr_ifrn.ifrn_name[0] != '\0') && (infocount >=0) ; infocount--, ptr++) {
 		// only handle IPV4 entries
-		if ( ifr->ifr_addr.sa_family != AF_INET ) {
+		if ( ptr->ifr_ifru.ifru_addr.sa_family != AF_INET ) {
 			continue;
 		}
 
 		char if_addr[ MAX_IPADDR_LEN + 1 ];
-		sockaddr_in	*sa = (struct sockaddr_in *) &ifr->ifr_addr;
+		sockaddr_in	*sa = (struct sockaddr_in *) &ptr->ifr_ifru.ifru_addr;
 		inet_ntop( AF_INET, &sa->sin_addr, if_addr, MAX_IPADDR_LEN + 1 );
 
 		if ( strcmp( "127.0.0.1", if_addr ) == 0 ) {
@@ -514,13 +484,10 @@ int	NET_UDPDriver::_RetrieveLocalIP()
 		node_t tmp_node;
 		memcpy( &tmp_node, &sa->sin_addr, IP_ADR_LENGTH );
 		NetworkInterfaces.push_back(tmp_node);
-
-
-		ifnum++;
-		MSGOUT( "found interface #%d: %s", ifnum, if_addr );
+		MSGOUT( "found interface #%d: %s", infocount, if_addr );
 	}
 
-	ASSERT(ifnum > -1);
+	ASSERT(infocount > -1);
 
 
 	// see if our preferred interface is in the vector
