@@ -502,7 +502,7 @@ int	NET_UDPDriver::_RetrieveLocalIP()
 		_SetupInterface(&NetworkInterfaces[0]); // rc checked below
 	}
 
-	//FREEMEM( infobuf );
+	delete [] ifc.ifc_ifcu.ifcu_req;
 	CLOSESOCKET( sockfd );
 	
 	return TRUE;
