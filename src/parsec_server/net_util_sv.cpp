@@ -84,6 +84,7 @@ word NODE_GetPort( node_t *node )
 	return ( ( (word)node->address[ 4 ] << 8 ) | node->address[ 5 ] );
 }
 
+#if 0
 
 // compare two node addresses (equal, less than, greater than) ----------------
 //
@@ -104,7 +105,7 @@ int NODE_Compare( node_t *node1, node_t *node2 )
 	
 	return NODECMP_EQUAL;
 }	
-
+#endif
 // compare two node addresses ( fast version ) --------------------------------
 //
 int NODE_AreSame( node_t *node1, node_t *node2 )

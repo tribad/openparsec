@@ -5,6 +5,10 @@
 #ifndef _NET_DEFS_H_
 #define _NET_DEFS_H_
 
+#include <string>
+
+#include <sys/socket.h>
+#include <arpa/inet.h>
 
 // ----------------------------------------------------------------------------
 // NETWORKING SUBSYSTEM (NET) related definitions                             -
@@ -157,9 +161,31 @@
 // encapsulate node address in portable manner --------------------------------
 //
 struct node_t {
+    	void setAddress(const struct saddress & aAddress);
+	void setIP(const std::string& aIp );
+	inline void setPort(uint16_t aPort) ;
+	inline std::string getIP();
+	inline uint16_t getPort();
+
 	byte		address[ MAX_NODE_ADDRESS_BYTES ];
 };
 
+std::string node_t::getIP()
+{
+    char ipString[MAX_IPADDR_LEN +1];
+    inet_ntop( AF_INET, &address, ipString, MAX_IPADDR_LEN + 1 );
+
+    return std::string(ipString);
+}
+
+void node_t::setPort(uint16_t aPort) {
+    address[ 4 ] = aPort >> 8;
+    address[ 5 ] = aPort & 0xff;
+}
+
+uint16_t node_t::getPort() {
+    return ( ( (word)address[ 4 ] << 8 ) | address[ 5 ] );
+}
 
 // status of local ship that is transmitted to remote players -----------------
 //
