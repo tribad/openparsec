@@ -111,7 +111,6 @@ add_executable(${PROJECT_NAME}
         MasterServer.cpp
         MasterServerItem.cpp
         net_packetdriver.cpp
-        net_util_sv.cpp
         nl_udpdriver.cpp
         sl_util_sv.cpp
         sv_main.cpp

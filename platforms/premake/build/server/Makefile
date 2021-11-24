@@ -438,9 +438,6 @@ $(OBJDIR)/e_simnetoutput.o: ../../../../src/parsec_server/e_simnetoutput.cpp
 $(OBJDIR)/e_simulator.o: ../../../../src/parsec_server/e_simulator.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/net_util_sv.o: ../../../../src/parsec_server/net_util_sv.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 $(OBJDIR)/MasterServerItem.o: ../../../../src/parsec_server/MasterServerItem.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"

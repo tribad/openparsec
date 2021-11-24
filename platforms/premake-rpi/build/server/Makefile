@@ -303,9 +303,6 @@ $(OBJDIR)/g_player.o: ../../../../src/parsec_server/g_player.cpp
 $(OBJDIR)/con_com_sv.o: ../../../../src/parsec_server/con_com_sv.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/net_util_sv.o: ../../../../src/parsec_server/net_util_sv.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 $(OBJDIR)/con_info_sv.o: ../../../../src/parsec_server/con_info_sv.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
