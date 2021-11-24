@@ -572,12 +572,11 @@ REGISTER_MODULE( NET_UDPDriver )
 void NET_UDPDriver::_SetupInterface(node_t *p_Node) {
 
 	// store numeric
-	//NODE_Copy(&m_Node, p_Node);
 	m_Node = *p_Node;
 
 	// store presentation
 	inet_ntop( AF_INET, &m_Node, m_szIP, MAX_IPADDR_LEN + 1 );
 
 	// store port number in ip address
-	NODE_StorePort( &m_Node, m_selected_port );
+	m_Node.setPort( m_selected_port );
 }

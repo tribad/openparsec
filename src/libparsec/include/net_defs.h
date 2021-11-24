@@ -6,7 +6,7 @@
 #define _NET_DEFS_H_
 
 #include <string>
-
+#include <cstring>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
@@ -65,14 +65,6 @@
 //
 #define MAX_NET_PROTO_PLAYERS	CurMaxPlayers	// declared in NET_GLOB.H
 
-
-// node address compare results -----------------------------------------------
-//
-#define NODECMP_LESSTHAN		-1
-#define NODECMP_EQUAL			0
-#define NODECMP_GREATERTHAN		1
-
-
 // message id for connectionless datagrams ------------------------------------
 //
 #define MSGID_DATAGRAM			0xFFFFFFFF
@@ -121,11 +113,6 @@
 #define MAX_SLOT_REQUESTS		8
 
 
-// maximum number of bytes in a remote address --------------------------------
-// (regardless of protocol; accommodates IPv6)
-#define MAX_NODE_ADDRESS_BYTES	16
-
-
 // maximum number of specified masterservers ----------------------------------
 //
 #define MAX_MASTERSERVERS		3
@@ -156,36 +143,7 @@
 // various size constants -----------------------------------------------------
 //
 #include "net_limits.h"
-
-
-// encapsulate node address in portable manner --------------------------------
-//
-struct node_t {
-    	void setAddress(const struct saddress & aAddress);
-	void setIP(const std::string& aIp );
-	inline void setPort(uint16_t aPort) ;
-	inline std::string getIP();
-	inline uint16_t getPort();
-
-	byte		address[ MAX_NODE_ADDRESS_BYTES ];
-};
-
-std::string node_t::getIP()
-{
-    char ipString[MAX_IPADDR_LEN +1];
-    inet_ntop( AF_INET, &address, ipString, MAX_IPADDR_LEN + 1 );
-
-    return std::string(ipString);
-}
-
-void node_t::setPort(uint16_t aPort) {
-    address[ 4 ] = aPort >> 8;
-    address[ 5 ] = aPort & 0xff;
-}
-
-uint16_t node_t::getPort() {
-    return ( ( (word)address[ 4 ] << 8 ) | address[ 5 ] );
-}
+#include "net_node.h"
 
 // status of local ship that is transmitted to remote players -----------------
 //

@@ -102,7 +102,7 @@ void E_ClientInfo::CopyClientConnectInfo( E_ClientConnectInfo* pClientConnectInf
 	strncpy( m_szHostName,		pClientConnectInfo->m_szHostName,	MAX_HOSTNAME_LEN );
 	m_szHostName[ MAX_HOSTNAME_LEN ] = 0;
 
-	NODE_Copy( &m_node,	&pClientConnectInfo->m_node );
+	m_node          = pClientConnectInfo->m_node;
 	m_challenge		= pClientConnectInfo->m_challenge;
 	m_nRecvRate		= pClientConnectInfo->m_nRecvRate;
 	m_nSendFreq		= pClientConnectInfo->m_nSendFreq;
@@ -161,7 +161,7 @@ int E_ConnManager::RequestChallenge( node_t* clientnode )
 	// generate a new unique challenge
 	pCurChallengeInfo->m_challenge = RAND();
 	pCurChallengeInfo->m_frame_generated = SYSs_GetRefFrameCount();
-	NODE_Copy( &pCurChallengeInfo->m_node, clientnode );
+	pCurChallengeInfo->m_node = *clientnode ;
 
 	// point to next challenge info
 	m_nCurChallengeInfo++;
@@ -235,7 +235,7 @@ int E_ConnManager::CheckClientConnect( E_ClientConnectInfo* pClientConnectInfo )
 	else if ( m_nNumConnected < MAX_NUM_CLIENTS ) {
 		
 		// output to logfile
-		MSGOUT( "client %s(%s) wants to connect, name: %s\n", pClientConnectInfo->m_szHostName, NODE_Print( &pClientConnectInfo->m_node ), pClientConnectInfo->m_szName );
+		MSGOUT( "client %s(%s) wants to connect, name: %s\n", pClientConnectInfo->m_szHostName,  pClientConnectInfo->m_node.print().c_str() , pClientConnectInfo->m_szName );
 
 		// ensure the client is not yet connected
 		_EnsureClientIsDisconnected( pClientConnectInfo );
@@ -340,7 +340,7 @@ int E_ConnManager::CheckNameChange( node_t* clientnode, char* newplayername )
 	// we could find the slot
 	if( nSlot != -1 ) {
 
-		MSGOUT( "client %s wants to be renamed to %s\n", NODE_Print( &m_ClientInfos[ nSlot ].m_node ), newplayername );
+		MSGOUT( "client %s wants to be renamed to %s\n",  m_ClientInfos[ nSlot ].m_node.print().c_str() , newplayername );
 
 		// only check for name collision if not alone
 		if ( m_nNumConnected > 1 ) {
@@ -412,7 +412,7 @@ int E_ConnManager::CheckAliveStatus()
 			// check for client timeout
 			if ( !pClientInfo->IsAlive() ) {
 				
-				MSGOUT( "force-removing timed-out client %s (name: %s)\n", NODE_Print( &pClientInfo->m_node ), pClientInfo->m_szName );
+				MSGOUT( "force-removing timed-out client %s (name: %s)\n",  pClientInfo->m_node.print().c_str(), pClientInfo->m_szName );
 
 				// send the response
 				ThePacketHandler->SendDisconnectResponse( DISC_OK, &pClientInfo->m_node, nClientID );
@@ -523,9 +523,9 @@ int E_ConnManager::_EnsureClientIsDisconnected( E_ClientConnectInfo* pClientConn
 		E_ClientInfo* pClientInfo = &m_ClientInfos[ nSlot ];
 		
 		if ( !pClientInfo->IsSlotFree() ) {
-			if ( NODE_Compare( &pClientInfo->m_node, &pClientConnectInfo->m_node ) == NODECMP_EQUAL ) {
+			if ( pClientInfo->m_node == pClientConnectInfo->m_node ) {
 
-				MSGOUT( "Removing (possibly) dead client %s", NODE_Print( &pClientConnectInfo->m_node ) );
+				MSGOUT( "Removing (possibly) dead client %s", pClientConnectInfo->m_node.print().c_str() );
 
 				// disconnect the client
 				DisconnectClient( nSlot );
@@ -721,7 +721,7 @@ int E_ConnManager::_IsChallengeCorrect( E_ClientConnectInfo* pClientConnectInfo,
 		E_ClientChallengeInfo* pChallengeInfo = &m_ChallengInfos[ cid ];
 		
 		// check if we have a challenge from this node
-		if ( NODE_AreSame( client_node, &pChallengeInfo->m_node ) ) {
+		if ( *client_node == pChallengeInfo->m_node ) {
 			
 			// check whether the challenge is the same we sent to the client
 			if ( pChallengeInfo->m_challenge == client_challenge ) {
@@ -757,7 +757,7 @@ int E_ConnManager::CheckNodesMatch( int nClientID, node_t* node )
 	if ( m_ClientInfos[ nClientID ].IsSlotFree() )
 		return FALSE;
 
-	return ( NODE_Compare( &m_ClientInfos[ nClientID ].m_node, node ) == NODECMP_EQUAL );
+	return ( m_ClientInfos[ nClientID ].m_node == *node ) ;
 }
 
 
@@ -772,7 +772,7 @@ int E_ConnManager::_FindSlotWithNode( node_t* clientnode )
 		// only check filled slots
 		if ( !pClientInfo->IsSlotFree() ) {
 			// check for connected client node
-			if( NODE_Compare( clientnode, &pClientInfo->m_node ) == NODECMP_EQUAL ) {
+			if(  *clientnode == pClientInfo->m_node) {
 				return nSlot;
 			}
 		}

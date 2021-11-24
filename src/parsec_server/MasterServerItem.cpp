@@ -89,7 +89,7 @@ MasterServerItem::MasterServerItem(int SrvID, int CurrPlayers, int MaxPlayers,
 		_ServerName[MAX_SERVER_NAME] = '\0';
 		strncpy(_OS, OS, MAX_OSNAME_LEN);
 		_OS[MAX_OSNAME_LEN]  = '\0';
-		NODE_Copy(&_Node, node);
+		_Node = *node ;
 		_MTime = time(NULL);
 		//MSGOUT("Added %i in constructor with time %i", _SrvID, _MTime);
 
@@ -111,7 +111,7 @@ bool MasterServerItem::update(int SrvID, int CurrPlayers, int MaxPlayers,
 	_ServerName[MAX_SERVER_NAME] = '\0';
 	SAFE_STR_DUPLICATE(_OS, OS, MAX_OSNAME_LEN-1);
 	_OS[MAX_OSNAME_LEN]  = '\0';
-	NODE_Copy(&_Node, node);
+	_Node = *node ;
 	_MTime =time(NULL);
 	//MSGOUT("Added %i in update() with time %i", _SrvID, _MTime);
 
@@ -219,7 +219,7 @@ MasterServerItem::MasterServerItem(const MasterServerItem& msi_copy) :
 }
 
 int MasterServerItem::GetNode(node_t* node) {
-	NODE_Copy(node, &_Node);
+	*node = _Node ;
 
 	return true;
 }

@@ -142,6 +142,7 @@ add_executable(${PROJECT_NAME}
     ../libparsec/debug.cpp
     ../libparsec/sys_swap.cpp
     ../libparsec/net_util.cpp
+    ../libparsec/net_node.cpp
     ../libparsec/sw_path.cpp
     ../libparsec/sys_file.cpp
     ../libparsec/e_modulemanager.cpp
@@ -152,7 +153,7 @@ add_executable(${PROJECT_NAME}
     ../libparsec/obj_clas.cpp
     ../libparsec/sl_timer.cpp
     ../libparsec/utl_math.cpp
-    )
+    ../libparsec/include/net_node.h)
 
 target_link_libraries(${PROJECT_NAME} OpenGL::OpenGL GLEW::GLEW SDL2::SDL2 ncurses)
 

@@ -23,7 +23,7 @@ public:
 public:
 	E_ClientChallengeInfo() : 
 	  m_challenge( -1 ),
-		  m_frame_generated( 0 )
+	  m_frame_generated( 0 )
 	  {
 		  memset( &m_node, 0, sizeof( node_t ) );
 	  }
@@ -34,7 +34,7 @@ public:
 class E_BasicClientInfo 
 {
 public:
-	int		m_nVersionMajor;
+  int		m_nVersionMajor;
 	int		m_nVersionMinor;
 	char	m_szName	[ MAX_PLAYER_NAME  + 1 ];
 	char	m_szOSLine  [ MAX_OSNAME_LEN   + 1 ];	
@@ -91,8 +91,8 @@ public:
 class E_ClientInfo : public E_BasicClientInfo
 {
 protected:
-	int					m_slotfree;	
-	int					m_nAliveCounter;
+	int			m_slotfree;
+	int			m_nAliveCounter;
 	E_SimPlayerInfo*	m_pSimPlayerInfo;
 
 public:
@@ -161,14 +161,14 @@ public:
 		CONN_CHALLENGE_INVALID   = 0,
 		CONN_CLIENT_INCOMAPTIBLE = 1,
 		CONN_CLIENT_BANNED       = 2,
-		CONN_SERVER_FULL		 = 3,
-		CONN_NAME_TAKEN			 = 4,
-		CONN_OK					 = 5
+		CONN_SERVER_FULL	 = 3,
+		CONN_NAME_TAKEN		 = 4,
+		CONN_OK			 = 5
 	};
 
 	enum DisconnResults {
-		DISC_NOT_CONNECTED		 = 0,
-		DISC_OK					 = 1
+		DISC_NOT_CONNECTED	 = 0,
+		DISC_OK			 = 1
 	};
 
 	enum NameChangeResults {

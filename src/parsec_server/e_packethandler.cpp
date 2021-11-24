@@ -217,7 +217,7 @@ void E_PacketHandler::SendNotifyConnected( int nDestSlot, int nClientSlot )
 	ASSERT( !pDestClientInfo->IsSlotFree() );
 	
 	// we do not notify the client about himself
-	if ( NODE_Compare( &pAboutClientInfo->m_node, &pDestClientInfo->m_node ) == NODECMP_EQUAL ) {
+	if ( pAboutClientInfo->m_node == pDestClientInfo->m_node ) {
 		ASSERT( FALSE );
 		return;
 	}
@@ -246,7 +246,7 @@ void E_PacketHandler::SendNotifyDisconnected( int nDestSlot, int nClientSlot )
 	ASSERT( !pDestClientInfo->IsSlotFree() );
 	
 	// we do not notify the client about himself
-	if ( NODE_Compare( &pAboutClientInfo->m_node, &pDestClientInfo->m_node ) == NODECMP_EQUAL ) {
+	if ( pAboutClientInfo->m_node == pDestClientInfo->m_node ) {
 		ASSERT( FALSE );
 		return;
 	}
@@ -273,7 +273,7 @@ void E_PacketHandler::SendNotifyNameChange( int nDestSlot, int nClientSlot )
 	ASSERT( pAboutClientInfo != NULL );
 	
 	// we do not notify the client about himself
-	if ( NODE_Compare( &pAboutClientInfo->m_node, &pDestClientInfo->m_node ) == NODECMP_EQUAL ) {
+	if ( pAboutClientInfo->m_node == pDestClientInfo->m_node )  {
 		ASSERT( FALSE );
 		return;
 	}
@@ -341,7 +341,7 @@ int E_PacketHandler::SendConnectResponse( E_ConnManager::ConnResults rc, E_Clien
 			//FIXME: NebulaID and other worldstate should be sent as a sync burst at the beginning
 			snprintf( sendline, sizeof(sendline), RECVSTR_ACCEPTED, 
 				pClientConnectInfo->m_szHostName, 
-				NODE_GetPort( &pClientConnectInfo->m_node ),
+				pClientConnectInfo->m_node.getPort(),
 				pClientConnectInfo->m_selected_slot, 
 				MAX_NUM_CLIENTS,	//FIXME: remove this ????
 				SV_SERVERID,
@@ -573,17 +573,12 @@ int E_PacketHandler::_IsLegitSender( NetPacket_GMSV* gamepacket, int bufid )
 		node_t* packetnode = ThePacketDriver->GetPktSender( bufid );
 		
 		// check whether someone tries to spoof the senderid
-		if ( NODE_AreSame( packetnode, &pClientInfo->m_node ) == FALSE ) {
+		if ( *packetnode !=  pClientInfo->m_node )  {
 
-			char szBuffer1[ 128 ];
-			char szBuffer2[ 128 ];
-			strcpy( szBuffer1, NODE_Print( packetnode )           );
-			strcpy( szBuffer2, NODE_Print( &pClientInfo->m_node ) );
-			
 			MSGOUT( "Filtering spoofed packet for %d. packet from %s - should be %s.\n", 
 				senderid, 
-				szBuffer1, 
-				szBuffer2 );
+				packetnode->print().c_str(),
+				pClientInfo->m_node.print().c_str() );
 			
 			//FIXME: check whether clients behind firewalls keep the same node ( ports might get remapped )
 			return FALSE ;
@@ -593,7 +588,7 @@ int E_PacketHandler::_IsLegitSender( NetPacket_GMSV* gamepacket, int bufid )
 		// get the sending node of the packet
 		node_t* packetnode = ThePacketDriver->GetPktSender( bufid );
 		if ( !TheServer->IsMasterServerNode( packetnode ) ) {
-			MSGOUT( "Filtering spoofed packet. claims to be from masterserver - is from %s.\n", NODE_Print( packetnode ) );
+			MSGOUT( "Filtering spoofed packet. claims to be from masterserver - is from %s.\n", packetnode->print().c_str() );
 			return FALSE ;
 		}
 	}
@@ -1153,7 +1148,7 @@ int E_PacketHandler::_ParseHBPacket_MASTER(char* recvline) {
 	if(ident_str == NULL) {
 		// null here means they didn't denote a port.  Let's use the default
 		// one
-		NODE_StorePort(&_Node, DEFAULT_GAMESERVER_UDP_PORT);
+		_Node.setPort(DEFAULT_GAMESERVER_UDP_PORT);
 	} else {
 		// next....
 		ident_str = strtok( NULL, " ");
@@ -1162,11 +1157,11 @@ int E_PacketHandler::_ParseHBPacket_MASTER(char* recvline) {
 			srv_port = atoi(ident_str);
 		}
 		if(srv_port > 0 ) {
-			NODE_StorePort(&_Node, srv_port);
+			_Node.setPort(srv_port);
 		} else {
 			// error parsing the server port,
 			// use the default one perhaps.
-			NODE_StorePort(&_Node, DEFAULT_GAMESERVER_UDP_PORT);
+			_Node.setPort( DEFAULT_GAMESERVER_UDP_PORT);
 		}
 	}
 
@@ -1182,7 +1177,7 @@ int E_PacketHandler::_ParseHBPacket_MASTER(char* recvline) {
 			// double check the ID against the node address.
 			node_t node_ck;
 			TheMaster->ServerList[i].GetNode(&node_ck);
-			if(NODE_AreSame(&node_ck, &_Node)){
+			if( node_ck == _Node) {
 				// they are the same, so update the record in the server list
 				TheMaster->ServerList[i].update(ServerID,CurrPlayers,MaxPlayers,PMajor,PMinor,ServerName,OS,&_Node);
 				return TRUE;
@@ -1230,9 +1225,9 @@ void E_PacketHandler::_Handle_STREAM_MASTER(NetPacket_GMSV* gamepacket, int bufi
 	RE_CommandInfo * re_commandinfo = NULL;
 	node_t*			clientnode		= ThePacketDriver->GetPktSender( bufid );
 
-	char *clientIP;
+	std::string clientIP;
 	
-	clientIP=NODE_Print(clientnode);
+	clientIP = clientnode->print();
 //	inet_ntop( AF_INET, &clientnode, clientIP, MAX_IPADDR_LEN + 1 );
 
 	// process remote event list
@@ -1268,7 +1263,7 @@ void E_PacketHandler::_Handle_STREAM_MASTER(NetPacket_GMSV* gamepacket, int bufi
 					//MSGOUT("E_PacketHandler::_Handle_STREAM_MASTER(): Got HB from client: %s\n", clientIP);
 					return;
 				} else {
-					MSGOUT("E_PacketHandler::_Handle_STREAM_MASTER(): Failed to parse HeartBeat Packet from: %s\n", clientIP);
+					MSGOUT("E_PacketHandler::_Handle_STREAM_MASTER(): Failed to parse HeartBeat Packet from: %s\n", clientIP.c_str());
 					return;
 				}
 
@@ -1279,7 +1274,7 @@ void E_PacketHandler::_Handle_STREAM_MASTER(NetPacket_GMSV* gamepacket, int bufi
 				break;
 
 			default:
-				MSGOUT( "E_PacketHandler::_Handle_STREAM_MASTER(): Invalid Packet type %d for Master Server from client %s", relist->RE_Type, clientIP);
+				MSGOUT( "E_PacketHandler::_Handle_STREAM_MASTER(): Invalid Packet type %d for Master Server from client %s", relist->RE_Type, clientIP.c_str());
 				break;
 
 		}
@@ -1404,7 +1399,7 @@ void E_PacketHandler::_Handle_COMMAND( NetPacket_GMSV* gamepacket, int bufid )
 	} else if ( _ParseConnectRequest( re_commandinfo->command, &_ClientConnectInfo ) ) {
 		
 		// store the sender node
-		NODE_Copy( &_ClientConnectInfo.m_node, clientnode );
+		_ClientConnectInfo.m_node = *clientnode ;
 		
 		// retrieve client hostname from address structure
 		inet_ntop( AF_INET, &_ClientConnectInfo.m_node, _ClientConnectInfo.m_szHostName, MAX_IPADDR_LEN + 1 );
@@ -1453,9 +1448,9 @@ void E_PacketHandler::_Handle_COMMAND_MASTER( NetPacket_GMSV* gamepacket, int bu
 	RE_CommandInfo* re_commandinfo	= (RE_CommandInfo*) &gamepacket->RE_List;
 	node_t*			clientnode		= ThePacketDriver->GetPktSender( bufid );
 
-	char *clientIP;
+	std::string clientIP;
 	
-	clientIP=NODE_Print(clientnode);
+	clientIP = clientnode->print();
 
 	UPDTXT2( MSGOUT( "PKTP_COMMAND C -> S: id: %d msg: %d cmd: '%s'", nClientID, gamepacket->MessageId, re_commandinfo->command ); );
 
@@ -1468,17 +1463,17 @@ void E_PacketHandler::_Handle_COMMAND_MASTER( NetPacket_GMSV* gamepacket, int bu
 
 		SendIPV4Response(clientnode,   nClientID, serverid);
 
-		MSGOUT("List Request from client %s\n", clientIP);
+		MSGOUT("List Request from client %s\n", clientIP.c_str());
 		return;
 	}
 	if ( _ParseHBPacket_MASTER(re_commandinfo->command)) {
-		MSGOUT("E_PacketHandler::_Handle_COMMAND_MASTER(): Got HB from client: %s\n", clientIP);
+		MSGOUT("E_PacketHandler::_Handle_COMMAND_MASTER(): Got HB from client: %s\n", clientIP.c_str());
 		return;
 	} else {
-		MSGOUT("E_PacketHandler::_Handle_COMMAND_MASTER(): Failed to parse HeartBeat Packet from: %s\n", clientIP);
+		MSGOUT("E_PacketHandler::_Handle_COMMAND_MASTER(): Failed to parse HeartBeat Packet from: %s\n", clientIP.c_str());
 		return;
 	}
-	MSGOUT("E_PacketHandler::_Handle_COMMAND_MASTER(): Unimplemented packet %s from client %s\n", re_commandinfo->command, clientIP);
+	MSGOUT("E_PacketHandler::_Handle_COMMAND_MASTER(): Unimplemented packet %s from client %s\n", re_commandinfo->command, clientIP.c_str());
 
 }
 

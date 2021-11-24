@@ -20,13 +20,13 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */ 
+ */
 
 // C library
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdarg.h>
 
 // compilation flags/debug support
 #include "config.h"
@@ -36,9 +36,9 @@
 #include "general.h"
 #include "objstruc.h"
 
-// network subsystem & server headers 
-#include "net_defs.h"
+// network subsystem & server headers
 #include "e_defs.h"
+#include "net_defs.h"
 
 // network code config
 //#include "net_conf.h"
@@ -49,42 +49,39 @@
 // local module header
 #include "net_util.h"
 
-
 // flags ----------------------------------------------------------------------
 //
 
 // copy one node over another -------------------------------------------------
 //
-void NODE_Copy( node_t* dst, node_t* src )
-{
-	ASSERT( dst != NULL );
-	ASSERT( src != NULL );
+#if 0
+void NODE_Copy(node_t *dst, node_t *src) {
+	ASSERT(dst != NULL);
+	ASSERT(src != NULL);
 
-	memcpy( dst, src, sizeof( node_t ) );
+	memcpy(dst, src, sizeof(node_t));
 }
-
 
 // store port number into node address structure ------------------------------
 //
-void NODE_StorePort( node_t *node, word port )
-{
-	ASSERT( node != NULL );
-	
-	node->address[ 4 ] = port >> 8;
-	node->address[ 5 ] = port & 0xff;
-}
 
+void NODE_StorePort(node_t *node, word port) {
+	ASSERT(node != NULL);
+
+	node->address[4] = port >> 8;
+	node->address[5] = port & 0xff;
+}
 
 // fetch port number from node address structure ------------------------------
 //
-word NODE_GetPort( node_t *node )
-{
-	ASSERT( node != NULL );
-	
-	return ( ( (word)node->address[ 4 ] << 8 ) | node->address[ 5 ] );
+
+word NODE_GetPort(node_t *node) {
+	ASSERT(node != NULL);
+
+	return (((word)node->address[4] << 8) | node->address[5]);
 }
 
-#if 0
+
 
 // compare two node addresses (equal, less than, greater than) ----------------
 //
@@ -104,36 +101,33 @@ int NODE_Compare( node_t *node1, node_t *node2 )
 	}
 	
 	return NODECMP_EQUAL;
-}	
-#endif
-// compare two node addresses ( fast version ) --------------------------------
-//
-int NODE_AreSame( node_t *node1, node_t *node2 )
-{
-	return ( memcmp( (void*)node1, (void*)node2, sizeof( node_t ) ) == 0 );
 }
 
+// compare two node addresses ( fast version ) --------------------------------
+//
+int NODE_AreSame(node_t *node1, node_t *node2) {
+	return (memcmp((void *)node1, (void *)node2, sizeof(node_t)) == 0);
+}
 
 // static print area for a node string ----------------------------------------
 //
-//FIXME: IPv6 ?
-static char szNodePrintBuffer[ sizeof "255.255.255.255:65535" ];
+// FIXME: IPv6 ?
+static char szNodePrintBuffer[sizeof "255.255.255.255:65535"];
 
 // return a STATIC string that contains the node in printable form ------------
 //
-char* NODE_Print( node_t* node )
-{
-	ASSERT( node != NULL );
+char *NODE_Print(node_t *node) {
+	ASSERT(node != NULL);
 
 	// convert IP
-	char ipstring[ MAX_IPADDR_LEN + 1 ];
-	inet_ntop( AF_INET, node, ipstring, MAX_IPADDR_LEN + 1 );
+	char ipstring[MAX_IPADDR_LEN + 1];
+	inet_ntop(AF_INET, node, ipstring, MAX_IPADDR_LEN + 1);
 
-	//NOTE: this function uses a STATIC string buffer that holds the printable
-	//      form of the node. Do not store the pointer, as it may get overwritten
-	//      by subsequent calls to NODE_Print
+	// NOTE: this function uses a STATIC string buffer that holds the printable
+	//       form of the node. Do not store the pointer, as it may get
+	//       overwritten by subsequent calls to NODE_Print
 
-	sprintf( szNodePrintBuffer, "%s:%d", ipstring,  NODE_GetPort( node ) );
+	sprintf(szNodePrintBuffer, "%s:%d", ipstring, node->getPort());
 	return szNodePrintBuffer;
 }
-
+#endif

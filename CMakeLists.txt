@@ -74,9 +74,9 @@ include_directories(src ${CMAKE_SOURCE_DIR})
 
 add_subdirectory(src)
 
-add_custom_target(the_whole ALL)
+##add_custom_target(parsec parsec_server ALL)
 
-add_dependencies(the_whole parsec parsec_server)
+#add_dependencies(the_whole parsec parsec_server)
 ##
 ##
 ##  Here we describe the files and positions of

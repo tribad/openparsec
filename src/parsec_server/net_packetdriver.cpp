@@ -252,7 +252,7 @@ node_t* NET_PacketDriver::GetPktSender( int bufid )
 	node = &ListenSenderStorage[ bufid ];
 	
 	memcpy( node, &ListenAddress[ bufid ].sin_addr, IP_ADR_LENGTH );
-	NODE_StorePort( node, ntohs( ListenAddress[ bufid ].sin_port ) );
+	node->setPort(ntohs( ListenAddress[ bufid ].sin_port ) );
 	
 	return node;
 }
@@ -363,7 +363,7 @@ int NET_PacketDriver::SendDatagram( NetPacket_GMSV* gamepacket, node_t* node, in
 	sockaddr_in SendAddress;
 	bzero( &SendAddress, sizeof( SendAddress ) );
 	SendAddress.sin_family = AF_INET;
-	SendAddress.sin_port = htons( NODE_GetPort( node ) );
+	SendAddress.sin_port = htons(  node->getPort() );
 	memcpy ( &SendAddress.sin_addr, node, IP_ADR_LENGTH );
 
 	TheUDPDriver->SendPacket( (char *) SendNetPacketExternal, pktsize, (SA*) &SendAddress );
@@ -461,7 +461,7 @@ int NET_PacketDriver::SendPacket( NetPacket_GMSV* gamepacket, node_t* node, int 
 	sockaddr_in SendAddress;
 	bzero( &SendAddress, sizeof( SendAddress ) );
 	SendAddress.sin_family = AF_INET;
-	SendAddress.sin_port = htons( NODE_GetPort( node ) );
+	SendAddress.sin_port = htons( node->getPort() );
 	memcpy ( &SendAddress.sin_addr, node, IP_ADR_LENGTH );
 
 	int rc = TheUDPDriver->SendPacket( (char *) SendNetPacketExternal, pktsize, (SA*) &SendAddress );
@@ -601,7 +601,7 @@ int NET_PacketDriver::_ChainPacket( NetPacket_GMSV* gamepacket, int bufid )
 				node_t* node = GetPktSender( bufid );
 				if ( !TheServer->IsMasterServerNode( node ) ) {
 					//DBGTXT(
-							MSGOUT( "NET_PacketDriver::_ChainPacket(): MasterServer NODE MISMATCH %s", NODE_Print( node ) );// );
+							MSGOUT( "NET_PacketDriver::_ChainPacket(): MasterServer NODE MISMATCH %s", node->print().c_str()  );// );
 					return FALSE;
 				}
 			}
@@ -617,7 +617,7 @@ int NET_PacketDriver::_ChainPacket( NetPacket_GMSV* gamepacket, int bufid )
 					// check src node with stored node for already connected client
 					node_t* clientnode	= GetPktSender( bufid );
 					if ( !TheConnManager->CheckNodesMatch( nClientID, clientnode ) ) {
-						DBGTXT( MSGOUT( "NET_PacketDriver::_ChainPacket(): NODE MISMATCH %d: %s", nClientID, NODE_Print( clientnode ) ); );
+						DBGTXT( MSGOUT( "NET_PacketDriver::_ChainPacket(): NODE MISMATCH %d: %s", nClientID, clientnode->print().c_str()  ); );
 						return FALSE;
 					}
 
@@ -639,14 +639,14 @@ int NET_PacketDriver::_ChainPacket( NetPacket_GMSV* gamepacket, int bufid )
 
 		// search for packet of same sender already in chain
 		for ( ; scan->nextblock; scan = scan->nextblock ) {
-			if ( NODE_Compare( GetPktSender( scan->nextblock->bufferno ), GetPktSender( bufid ) ) == NODECMP_EQUAL ) {
+			if ( *GetPktSender( scan->nextblock->bufferno ) == *GetPktSender( bufid ) ) {
 				break;
 			}
 		}
 		
 		// search to right insert position (according to message id)
 		for ( ; scan->nextblock; scan = scan->nextblock ) {
-			if ( NODE_Compare( GetPktSender( scan->nextblock->bufferno ), GetPktSender( bufid ) ) != NODECMP_EQUAL ) {
+			if ( *GetPktSender( scan->nextblock->bufferno ) != *GetPktSender( bufid ) ) {
 				break;
 			}
 			if ( messageid <= scan->nextblock->messageid  ) {
@@ -751,7 +751,7 @@ int NET_PacketDriver::_UDP_FetchPacket( int bufid )
 		ListenVersionMinor[ bufid ] = RecvNetPacketExternal->MinorVersion;
 
 		// filter broadcast packets that are looping back
-		if ( NODE_Compare( TheUDPDriver->GetNode(), GetPktSender( bufid ) ) == NODECMP_EQUAL ) {
+		if ( *TheUDPDriver->GetNode() == *GetPktSender( bufid ) ) {
 			//DBGTXT(
 					MSGOUT( "NET_PacketDriver::_UDP_FetchPacket(): dropped packet [loop-back]." ); //);
 			// indicate we want to try to receive more packets
@@ -798,7 +798,7 @@ int NET_PacketDriver::_SendClientIncompatible(node_t* node, int nClientID, byte 
 
 	snprintf( clientcommand, sizeof(clientcommand), RECVSTR_SERVER_INCOMP );
 
-	MSGOUT("NET_PacketDriver::_SendClientIncompatible(): Incompatible Protocol Notification going to %s", NODE_Print(node));
+	MSGOUT("NET_PacketDriver::_SendClientIncompatible(): Incompatible Protocol Notification going to %s", node->print().c_str());
 
 	char			buffer[ NET_MAX_NETPACKET_INTERNAL_LEN ];
 	NetPacket_GMSV*	gamepacket = (NetPacket_GMSV *) buffer;
@@ -851,7 +851,7 @@ int NET_PacketDriver::_CheckIncompatibleChallenge(node_t *node){
 		// generate a new unique challenge
 		pCurChallengeInfo->m_challenge = RAND();
 		pCurChallengeInfo->m_frame_generated = SYSs_GetRefFrameCount();
-		NODE_Copy( &pCurChallengeInfo->m_node, node );
+		pCurChallengeInfo->m_node =  *node ;
 
 
 		// send the response back to the client

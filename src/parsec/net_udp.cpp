@@ -53,6 +53,7 @@
 // subsystem linkage info
 #include "linkinfo.h"
 
+#include "net_node.h"
 // local module header
 #include "net_udpdf.h"
 #include "net_udp.h"
@@ -438,7 +439,7 @@ int UDP_FetchPacket( int bufid )
 		memcpy( &ListenAddress[ bufid ], &from_adress, sizeof( sockaddr_in ) );
 
 		// filter broadcast packets that are looping back
-		if ( NETs_CompareNodes( &LocalNode, NETs_GetSender( bufid ) ) == NODECMP_EQUAL ) {
+		if ( LocalNode == *NETs_GetSender( bufid ) ) {
 			DBGTXT( MSGOUT( "NET_UDP::UDP_FetchPacket(): dropped packet [loop-back]." ); );
 			// indicate we want to try to receive more packets
 			return TRUE;
@@ -660,28 +661,6 @@ int UDP_KillInterface()
 //
 #define CHECK_SIMULATION() if ( NetConnected == NETWORK_GAME_SIMULATED ) return; else {}
 
-
-// compare two node addresses (equal, less than, greater than) ----------------
-//
-int NETs_CompareNodes( node_t *node1, node_t *node2 )
-{
-	byte *ip1 = (byte *) node1;
-	byte *ip2 = (byte *) node2;
-
-	// compare as many digits as necessary
-	for ( int pos = 0; pos < NODE_ADR_LENGTH; pos++ ) {
-
-		if ( ip1[ pos ] < ip2[ pos ] ) {
-			return NODECMP_LESSTHAN;
-		} else if ( ip1[ pos ] > ip2[ pos ] ) {
-			return NODECMP_GREATERTHAN;
-		}
-	}
-
-	return NODECMP_EQUAL;
-}
-
-
 // determine if destination player is virtual ---------------------------------
 //
 int NETs_VirtualNode( node_t *node )
@@ -722,25 +701,6 @@ void NETs_SetBroadcastAddress( node_t *node )
 
 	memcpy( ip, &LocalBroadcast, NODE_ADR_LENGTH );
 }
-
-
-// resolve node address -------------------------------------------------------
-//
-void NETs_ResolveNode( node_t* node_dst, node_t* node_src )
-{
-	// only copy operation for IP addresses
-	memcpy( (byte*)node_dst, (byte*)node_src, MAX_NODE_ADDRESS_BYTES );
-}
-
-
-// retrieve raw node address from already resolved address --------------------
-//
-void NETs_MakeNodeRaw( node_t* node_dst, node_t* node_src )
-{
-	// only copy operation for IP addresses
-	memcpy( (byte*) node_dst, (byte*) node_src, MAX_NODE_ADDRESS_BYTES );
-}
-
 
 // static unresolved virtual node address (must be set correctly!) ------------
 //
@@ -791,7 +751,7 @@ void NETs_ResolveSender( node_t *node, int bufid )
 
 	if ( bufid != VIRTUAL_BUFFER_ID ) {
 
-		NETs_ResolveNode( node, NETs_GetSender( bufid ) );
+		*node = *NETs_GetSender( bufid );
 
 	} else {
 
@@ -995,14 +955,14 @@ int ChainPacket( NetPacket *gamepacket, int bufid )
 
 		// search for packet of same sender already in chain
 		for ( ; scan->nextblock; scan = scan->nextblock ) {
-			if ( NETs_CompareNodes( NETs_GetSender( scan->nextblock->bufferno ), NETs_GetSender( bufid ) ) == NODECMP_EQUAL ) {
+			if ( *NETs_GetSender( scan->nextblock->bufferno ) == *NETs_GetSender( bufid ) ) {
 				break;
 			}
 		}
 
 		// search to right insert position (according to message id)
 		for ( ; scan->nextblock; scan = scan->nextblock ) {
-			if ( NETs_CompareNodes( NETs_GetSender( scan->nextblock->bufferno ), NETs_GetSender( bufid ) ) != NODECMP_EQUAL ) {
+			if ( *NETs_GetSender( scan->nextblock->bufferno ) == *NETs_GetSender( bufid ) ) {
 				break;
 			}
 			if ( messageid <= (dword)scan->nextblock->messageid  ) {

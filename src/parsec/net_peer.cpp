@@ -129,12 +129,11 @@ int DetermineSlave( node_t *localplayer, node_t *remoteplayer )
 	// higher priority. then both nodes will be slaves.
 
 	// compare node addresses
-	int cmpcode = NETs_CompareNodes( localplayer, remoteplayer );
 
 	// enslave player with lower ethernet node address
-	if ( cmpcode == NODECMP_LESSTHAN )
+	if ( *localplayer < *remoteplayer )
 		return SLAVE_LOCALNODE;
-	if ( cmpcode == NODECMP_GREATERTHAN )
+	if ( *localplayer < *remoteplayer )
 		return SLAVE_REMOTENODE;
 
 	MSGOUT( "two identical node addresses encountered." );
@@ -184,7 +183,7 @@ void CreateRemotePlayer( RE_PlayerList *re_playerlist, int id )
 	Player_LastUpdateGameStateMsgId[ id ] = 0;
 
 	// store address and name
-	NETs_ResolveNode( &Player_Node[ id ], &re_playerlist[ listnum ].AddressTable[ id % 4 ] );
+	Player_Node[ id ] = re_playerlist[ listnum ].AddressTable[ id % 4 ] ;
 	CopyRemoteName( Player_Name[ id ], re_playerlist[ listnum ].NameTable[ id % 4 ] );
 
 	// if player is joined store ship info and create ship
@@ -212,7 +211,7 @@ void CreateRemotePlayer( RE_PlayerList *re_playerlist, int id )
 
 
 	DBGTXT( MSGOUT( "created player: id %d, status %d.", id, Player_Status[ id ] ); );
-	ADXTXT( NETs_PrintNode( &Player_Node[ id ] ); );
+	ADXTXT( Player_Node[ id ].print().c_str(); );
 }
 
 
@@ -281,7 +280,7 @@ void SendConnectReply( int qpos, int slotid )
 		return;
 
 	DBGTXT( MSGOUT( "sending connect reply to: %s (id %d).", SlotReqQueue[ qpos ].name, slotid ); );
-	DBGTXT( NETs_PrintNode( &SlotReqQueue[ qpos ].node ); );
+	DBGTXT( SlotReqQueue[ qpos ].node.print().c_str() ; );
 
 	// store id remote player got assigned
 	GamePacket->DestPlayerId = slotid;
@@ -363,7 +362,7 @@ void ConnectQueue()
 		if ( slotid == SLOTID_NOT_ASSIGNED ) {
 
 			node_t node;
-			NETs_ResolveNode( &node, &SlotReqQueue[ qpos ].node );
+			node = SlotReqQueue[ qpos ].node ;
 			char *name = SlotReqQueue[ qpos ].name;
 
 			// try to register remote player
@@ -416,7 +415,7 @@ void SendSlotRequest( node_t *node )
 	ASSERT( node != NULL );
 
 	DBGTXT( MSGOUT( "sending slot_request to host:" ); );
-	DBGTXT( NETs_PrintNode( node ); );
+	DBGTXT( node->print().c_str(); );
 
 	// fill game data header
 	NETs_StdGameHeader( PKTP_SLOT_REQUEST, (NetPacket*)GamePacket );
@@ -437,7 +436,7 @@ void SendSubdueCommand( node_t *node )
 	ASSERT( node != NULL );
 
 	DBGTXT( MSGOUT( "subduing slave:" ); );
-	DBGTXT( NETs_PrintNode( node ); );
+	DBGTXT( node->print().c_str(); );
 
 	// fill game data header
 	NETs_StdGameHeader( PKTP_SUBDUE_SLAVE, (NetPacket*)GamePacket );
@@ -458,7 +457,7 @@ void ProcessConnect( NetPacket_PEER* gamepacket, int bufid )
 	node_t *node = NETs_GetSender( bufid );
 
 	DBGTXT( MSGOUT( "processing connect request:" ); );
-	DBGTXT( NETs_PrintNode( node ); );
+	DBGTXT( node->print().c_str(); );
 
 	if ( DetermineSlave( &LocalNode, node ) == SLAVE_REMOTENODE ) {
 
@@ -503,7 +502,7 @@ int ProcessConnectReply( NetPacket_PEER* gamepacket, int bufid )
 	}
 
 	DBGTXT( MSGOUT( "processing connect reply from id %d (pid=%d).", senderid, gamepacket->MessageId ); );
-	ADXTXT( NETs_PrintNode( NETs_GetSender( bufid ) ); );
+	ADXTXT( NETs_GetSender( bufid )->print().c_str() ; );
 
 	// fetch player id and number of remote players (local player included)
 	int playerid  = gamepacket->DestPlayerId;
@@ -562,7 +561,7 @@ void ProcessSlotRequest( NetPacket_PEER* gamepacket, int bufid )
 	ASSERT( gamepacket->Command == PKTP_SLOT_REQUEST );
 
 	DBGTXT( MSGOUT( "got slot_request:" ); );
-	DBGTXT( NETs_PrintNode( NETs_GetSender( bufid ) ); );
+	DBGTXT( NETs_GetSender( bufid )->print().c_str(); );
 
 	// merge slot request queue of remote host with local queue
 	NET_MergeSlotRequests( gamepacket, TIMETAG_REPLYNOW );
@@ -580,7 +579,7 @@ void ProcessSubdueSlave( NetPacket_PEER* gamepacket, int bufid )
 	node_t *node = NETs_GetSender( bufid );
 
 	DBGTXT( MSGOUT( "got subdue_slave:" ); );
-	DBGTXT( NETs_PrintNode( node ); );
+	DBGTXT( node->print().c_str(); );
 
 	// remember address of sender (who is temporary master)
 	CopyRemoteNode( master_node, *node );
@@ -862,7 +861,7 @@ int NETs_Disconnect()
 		if ( REMOTE_PLAYER_ACTIVE( id ) ) {
 
 			DBGTXT( MSGOUT( "sending disconnect message to id %d.", id ); );
-			ADXTXT( NETs_PrintNode( &Player_Node[ id ] ); );
+			ADXTXT( Player_Node[ id ].print().c_str(); );
 
 			// fill game data header
 			NETs_StdGameHeader( PKTP_DISCONNECT, (NetPacket*)GamePacket );
@@ -910,7 +909,7 @@ int NETs_Join()
 		if ( REMOTE_PLAYER_ACTIVE( id ) ) {
 
 			DBGTXT( MSGOUT( "sending join message to id %d.", id ); );
-			ADXTXT( NETs_PrintNode( &Player_Node[ id ] ); );
+			ADXTXT( Player_Node[ id ].print().c_str(); );
 
 			// fill game data header
 			NETs_StdGameHeader( PKTP_JOIN, (NetPacket*)GamePacket );
@@ -966,7 +965,7 @@ int NETs_Unjoin( byte flag )
 		if ( REMOTE_PLAYER_ACTIVE( id ) ) {
 
 			DBGTXT( MSGOUT( "sending unjoin message to id %d.", id ); );
-			ADXTXT( NETs_PrintNode( &Player_Node[ id ] ); );
+			ADXTXT( Player_Node[ id ].print().c_str(); );
 
 			// fill game data header
 			NETs_StdGameHeader( PKTP_UNJOIN, (NetPacket*)GamePacket );
@@ -1016,23 +1015,15 @@ int CalcReplyTimeOffset()
 	// assume local host is first to reply
 	int localpos = 0;
 
-	node_t localnode;
-	NETs_MakeNodeRaw( &localnode, &Player_Node[ LocalPlayerId ] );
+	node_t localnode (Player_Node[ LocalPlayerId ]);
 
-	for ( int id = 0; id < CurMaxPlayers; id++ )
-		if ( REMOTE_PLAYER_ACTIVE( id ) ) {
-
-			node_t remotenode;
-			NETs_MakeNodeRaw( &remotenode, &Player_Node[ id ] );
-
-			// use node address to establish ordering
-			int cmpcode = NETs_CompareNodes( &localnode, &remotenode );
-
+	for ( int id = 0; id < CurMaxPlayers; id++ ) {
+		if (REMOTE_PLAYER_ACTIVE(id)) {
 			// nodes with greater address have higher priority
-			if ( cmpcode == NODECMP_GREATERTHAN )
+			if (localnode > Player_Node[id])
 				localpos++;
 		}
-
+	}
 	return ( localpos * TIMEOFFSET_QUANTUM );
 }
 
@@ -1047,7 +1038,7 @@ void ScheduleConnect( NetPacket_PEER* gamepacket, int bufid )
 			( gamepacket->Command == PKTP_SLOT_REQUEST ) );
 
 	DBGTXT( MSGOUT( "scheduling connect request:" ); );
-	DBGTXT( NETs_PrintNode( NETs_GetSender( bufid ) ); );
+	DBGTXT( NETs_GetSender( bufid )->print().c_str(); );
 
 	// calc timetag
 	int timetag = SYSs_GetRefFrameCount() + CalcReplyTimeOffset();
@@ -1086,8 +1077,8 @@ void SnoopConnect( NetPacket_PEER* gamepacket, int bufid )
 	}
 
 	DBGTXT( MSGOUT( "snooping connect reply from id %d to id %d.", srcid, destid ); );
-	DBGTXT( NETs_PrintNode( NETs_GetSender( bufid ) ); );
-	DBGTXT( NETs_PrintNode( &re_playerlist[ LocalPlayerId >> 2 ].AddressTable[ LocalPlayerId % 4 ] ); );
+	DBGTXT( NETs_GetSender( bufid )->print().c_str(); );
+	DBGTXT( re_playerlist[ LocalPlayerId >> 2 ].AddressTable[ LocalPlayerId % 4 ].print().c_str(); );
 
 	// check for duplicate replies
 	if ( Player_Status[ destid ] != PLAYER_INACTIVE ) {
@@ -1137,7 +1128,7 @@ void ConnectionEstablished( int bufid )
 	if ( NET_DelSlotRequest( NETs_GetSender( bufid ) ) ) {
 
 		DBGTXT( MSGOUT( "slot request deleted." ); );
-		DBGTXT( NETs_PrintNode( NETs_GetSender( bufid ) ); );
+		DBGTXT( NETs_GetSender( bufid )->print().c_str(); );
 	}
 }
 
@@ -1266,7 +1257,7 @@ void SendGameState()
 		if ( REMOTE_PLAYER_ACTIVE( id ) ) {
 
 			UPDTXT( MSGOUT( "updating id %d (pid=%d).", id, GamePacket->MessageId ); );
-			UPDTXT( ADXTXT( NETs_PrintNode( &Player_Node[ id ] ); ); );
+			UPDTXT( ADXTXT( Player_Node[ id ].print().c_str(); ); );
 
 			// enable remote player to determine whether
 			// join status is consistent
@@ -1304,7 +1295,7 @@ void SendNodeAlive()
 		if ( REMOTE_PLAYER_ACTIVE( id ) ) {
 
 			UPDTXT( MSGOUT( "sending node_alive to id %d (pid=%d).", id, GamePacket->MessageId ); );
-			UPDTXT( ADXTXT( NETs_PrintNode( &Player_Node[ id ] ); ); );
+			UPDTXT( ADXTXT( Player_Node[ id ].print().c_str(); ); );
 
 			// enable remote player to perform delayed unjoin
 			// (to compensate for dropped unjoin packets)

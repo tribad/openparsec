@@ -637,7 +637,7 @@ void E_GameServer::SetMasterServerInfo( char* pHostname, refframe_t _MasterServe
 //
 int	E_GameServer::IsMasterServerNode( node_t* node )
 {
-	return ( NODE_Compare( node, &m_MasterServer_Node ) == NODECMP_EQUAL );
+	return ( *node == m_MasterServer_Node ) ;
 }
 
 // set the new MASV challenge and enforce a new announcement to the MASV ------
@@ -669,7 +669,7 @@ int E_GameServer::_MaintainMasterServer()
 		// try to resolve master server node
 		if ( !m_bMasterServer_NodeValid ) {
 			if ( TheUDPDriver->ResolveHostName( m_MasterServer_Hostname, &m_MasterServer_Node ) ) {
-				NODE_StorePort( &m_MasterServer_Node, DEFAULT_MASTERSERVER_UDP_PORT );
+				m_MasterServer_Node.setPort( DEFAULT_MASTERSERVER_UDP_PORT );
 				m_bMasterServer_NodeValid = true;
 			} else {
 				CON_AddLine( error_resolving_masterserver );
