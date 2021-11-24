@@ -28,12 +28,6 @@ void	NET_DecryptData( void* packet, size_t psize );
 
 // include proper server/client specific header -------------------------------
 //
-#ifdef PARSEC_CLIENT
-	#include "net_util_cl.h"
-#else // !PARSEC_CLIENT
-	#include "net_util_sv.h"
-#endif // !PARSEC_CLIENT
-
 
 #endif // _NET_UTIL_H_
 

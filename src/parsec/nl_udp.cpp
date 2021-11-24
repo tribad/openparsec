@@ -51,7 +51,6 @@
 
 // local module header
 #include "net_udpdf.h"
-#include "nl_udp.h"
 
 // proprietary module headers
 #include "con_aux.h"

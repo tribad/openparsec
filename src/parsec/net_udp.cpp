@@ -56,7 +56,6 @@
 #include "net_node.h"
 // local module header
 #include "net_udpdf.h"
-#include "net_udp.h"
 
 // proprietary module headers
 #include "con_aux.h"
