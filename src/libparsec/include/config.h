@@ -76,7 +76,7 @@
 
 // define this to use the CURSES library for the server -----------------------
 //
-#define USE_CURSES
+//#define USE_CURSES
 
 // miscellaneous conditions ---------------------------------------------------
 //
