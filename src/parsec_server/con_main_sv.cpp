@@ -240,7 +240,9 @@ void EraseConLine( int line )
 {
 	ASSERT( ( line >= 0 ) && ( line < NUM_CONSOLE_LINES ) );
 	memset( con_lines[ line ], 0, MAX_CONSOLE_LINE_LENGTH + 1 );
+#ifdef USE_CURSES
 	wclear( g_curses_in_win );
+#endif
 	cursor_x = 0;
 }
 
@@ -1534,6 +1536,7 @@ int QuicksayConsole()
 PRIVATE
 void DrawConsole( bool_t bClear )
 {
+#ifdef USE_CURSES
 	//NOTE: in order to minimize screen flicker, we only clear the inputline, 
 	//      if the previous contents was longers
 	if ( bClear )
@@ -1542,6 +1545,7 @@ void DrawConsole( bool_t bClear )
 	mvwprintw( g_curses_in_win, 0, 0, con_lines[ con_bottom ] );
 	wmove( g_curses_in_win, 0, cursor_x + PROMPT_SIZE );
 	wrefresh( g_curses_in_win );
+#endif
 }
 
 
