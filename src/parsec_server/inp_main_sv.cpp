@@ -105,12 +105,14 @@ void _INP_HandleBufferedKey( int key, int nRepcount )
 PUBLIC
 void INP_HandleInput()
 {
+#ifdef USE_CURSES
 	ASSERT( g_curses_in_win != NULL );
 	int c = wgetch( g_curses_in_win );
 
 	if ( c != ERR ) {
 		_INP_HandleBufferedKey( c, 1 );		
 	}
+#endif
 }
 
 
