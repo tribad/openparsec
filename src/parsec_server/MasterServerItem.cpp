@@ -217,9 +217,3 @@ MasterServerItem::MasterServerItem(const MasterServerItem& msi_copy) :
 	memcpy(&_Node, &msi_copy._Node, sizeof( node_t ));
 
 }
-
-int MasterServerItem::GetNode(node_t* node) {
-	*node = _Node ;
-
-	return true;
-}

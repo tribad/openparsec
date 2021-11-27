@@ -265,7 +265,7 @@ public:
 	int NET_Append_RE_CreateExtra2( const ExtraObject *extrapo );
 
 	// append a RE_IPv4ServerInfo event
-	int NET_Append_RE_IPv4ServerInfo( node_t* node, word nServerID, int xpos, int ypos, word flags );
+	int NET_Append_RE_IPv4ServerInfo( const node_t& node, word nServerID, int xpos, int ypos, word flags );
 
 	// append a RE_ServerLinkInfo event
 	int NET_Append_RE_ServerLinkInfo( word nServerID_1, word nServerID_2, word flags );

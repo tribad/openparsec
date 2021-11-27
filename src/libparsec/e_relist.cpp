@@ -19,8 +19,11 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */ 
-
+ */
+//
+//  C++ header
+#include <iostream>
+#include <sstream>
 // C library
 #include <stdlib.h>
 #include <stdio.h>
@@ -924,11 +927,9 @@ int E_REList::NET_Append_RE_KillStats()
 
 // append a RE_IPv4ServerInfo event -------------------------------------------
 //
-int E_REList::NET_Append_RE_IPv4ServerInfo( node_t* node, word nServerID, int xpos, int ypos, word flags )
+int E_REList::NET_Append_RE_IPv4ServerInfo( const node_t& node, word nServerID, int xpos, int ypos, word flags )
 {
-
-
-	ASSERT( node != NULL );
+	std::ostringstream  oss;
 
 	if ( m_Avail < sizeof( RE_IPv4ServerInfo ) ) {
 		return FALSE;
@@ -938,7 +939,10 @@ int E_REList::NET_Append_RE_IPv4ServerInfo( node_t* node, word nServerID, int xp
 	re_ipv4serverinfo->RE_Type			 = RE_IPV4SERVERINFO;
 	re_ipv4serverinfo->RE_BlockSize		 = sizeof( RE_IPv4ServerInfo );
 
-	memcpy( re_ipv4serverinfo->node, node, NODE_ADR_LENGTH );
+	oss << "sizeof(RE_IPv4ServerInfo):" << sizeof(RE_IPv4ServerInfo) << std::endl;
+
+	SYSs_MsgPut(oss.str().c_str());
+	memcpy(re_ipv4serverinfo->node, &node, 6);
 
 	re_ipv4serverinfo->flags	= flags;
 	re_ipv4serverinfo->serverid = nServerID;

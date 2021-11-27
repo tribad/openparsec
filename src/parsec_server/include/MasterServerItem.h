@@ -35,7 +35,7 @@ public:
 	int GetPMinor();
 	int GetServerName(char *buffer, int buffer_sz);
 	int GetOS(char *buffer, int buffer_sz);
-	int GetNode(node_t *node);
+	inline const node_t& GetNode();
 	time_t GetMTime();
 
 private:
@@ -49,5 +49,9 @@ private:
 	char _OS[MAX_OSNAME_LEN + 1 ];
 	node_t _Node;
 };
+
+const node_t& MasterServerItem::GetNode() {
+	return _Node;
+}
 
 #endif /* MASTERSERVERLIST_H_ */

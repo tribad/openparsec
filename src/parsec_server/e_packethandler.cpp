@@ -1176,7 +1176,7 @@ int E_PacketHandler::_ParseHBPacket_MASTER(char* recvline) {
 		if(SrvID == ServerID) {
 			// double check the ID against the node address.
 			node_t node_ck;
-			TheMaster->ServerList[i].GetNode(&node_ck);
+			node_ck = TheMaster->ServerList[i].GetNode();
 			if( node_ck == _Node) {
 				// they are the same, so update the record in the server list
 				TheMaster->ServerList[i].update(ServerID,CurrPlayers,MaxPlayers,PMajor,PMinor,ServerName,OS,&_Node);
@@ -1531,13 +1531,11 @@ int E_PacketHandler::SendIPV4Response(node_t* clientnode, int nClientID, int ser
 			E_REList* pUnreliable = E_REList::CreateAndAddRef( RE_LIST_MAXAVAIL );
 			// append a remote event containing the command
 
-
 			node_t node;
-			TheMaster->ServerList[i].GetNode( &node);
+			node = TheMaster->ServerList[i].GetNode();
 			word SrvID = (word)TheMaster->ServerList[i].GetSrvID();
 
-
-			int rc = pUnreliable->NET_Append_RE_IPv4ServerInfo( &node, SrvID, SrvID, SrvID, 0 );
+			int rc = pUnreliable->NET_Append_RE_IPv4ServerInfo( node, SrvID, SrvID, SrvID, 0 );
 			ASSERT( rc == TRUE );
 
 			// send a datagram
