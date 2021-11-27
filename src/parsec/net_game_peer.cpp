@@ -261,10 +261,8 @@ void NET_Translate_PKTP_NODE_ALIVE( NetPacket_PEER* gamepacket, RE_PlayerAndShip
 
 // acquire slot for remote player ---------------------------------------------
 //
-int NET_AcquireRemoteSlot( node_t *node )
+int NET_AcquireRemoteSlot( const node_t& node )
 {
-	ASSERT( node != NULL );
-	
 	//NOTE:
 	// this function is only used by NET_PEER::ConnectQueue()
 	// to acquire an arbitrary slot for a new remote player.
@@ -274,7 +272,7 @@ int NET_AcquireRemoteSlot( node_t *node )
 	int slotid		= SLOTID_CONNECT_REFUSED;
 	int numplayers	= NumRemPlayers;
 	
-	node_t sendnode(*node);
+	node_t sendnode(node);
 
 	// try all slots
 	for ( int id = 0; id < MAX_NET_PROTO_PLAYERS; id++ ) {
@@ -306,15 +304,14 @@ int NET_AcquireRemoteSlot( node_t *node )
 
 // append single slot request if not duplicate --------------------------------
 //
-int NET_AddSlotRequest( node_t *node, char *name, int timetag )
+int NET_AddSlotRequest( const node_t& node, char *name, int timetag )
 {
-	ASSERT( node != NULL );
 	ASSERT( name != NULL );
 
 	// compare to old requests
 	for ( int creq = 0; creq < NumSlotRequests; creq++ )
 		if ( SlotReqQueue[ creq ].slotid != SLOTID_DELETED )
-			if ( SlotReqQueue[ creq ].node == *node )
+			if ( SlotReqQueue[ creq ].node == node )
 				return 0;
 
 	if ( NumSlotRequests >= MAX_SLOT_REQUESTS ) {
@@ -331,11 +328,11 @@ int NET_AddSlotRequest( node_t *node, char *name, int timetag )
 
 	SlotReqQueue[ qpos ].slotid	 = slotid;
 	SlotReqQueue[ qpos ].timetag = timetag;
-	SlotReqQueue[ qpos ].node	 = *node;
+	SlotReqQueue[ qpos ].node	 = node;
 	CopyRemoteName( SlotReqQueue[ qpos ].name, name );
 
 	DBGTXT( MSGOUT( "NET_AddSlotRequest(): appended entry." ); );
-	ADXTXT( node->print().c_str(); );
+	ADXTXT( node.print().c_str(); );
 
 	// return number of added slot requests
 	return 1;
@@ -344,17 +341,15 @@ int NET_AddSlotRequest( node_t *node, char *name, int timetag )
 
 // delete single slot request from queue --------------------------------------
 //
-int NET_DelSlotRequest( node_t *node )
+int NET_DelSlotRequest( const node_t& node )
 {
-	ASSERT( node != NULL );
-	
 	int skipall   = TRUE;
 	int nodefound = FALSE;
 	
 	// look for request with specified address
 	for ( int creq = 0; creq < NumSlotRequests; creq++ )
 		if ( SlotReqQueue[ creq ].slotid != SLOTID_DELETED ) {
-			if ( SlotReqQueue[ creq ].node == *node ) {
+			if ( SlotReqQueue[ creq ].node == node ) {
 				// disable request (no actual deletion)
 				SlotReqQueue[ creq ].slotid = SLOTID_DELETED;
 				nodefound = TRUE;
@@ -365,7 +360,7 @@ int NET_DelSlotRequest( node_t *node )
 		
 	if ( nodefound ) {
 		DBGTXT( MSGOUT( "NET_DelSlotRequest(): removed entry." ); );
-		ADXTXT(  node->print().c_str() ; );
+		ADXTXT(  node.print().c_str() ; );
 	}
 
 	// reset queue if only deleted entries found
@@ -376,7 +371,6 @@ int NET_DelSlotRequest( node_t *node )
 
 	return nodefound;
 }
-
 
 // merge slot request queue of remote host with local queue -------------------
 //
@@ -406,7 +400,7 @@ int NET_MergeSlotRequests( NetPacket_PEER *gamepacket, int timetag )
 	// process all new slot requests
 	int numadded = 0;
 	for ( int newreq = 0; newreq < re_cq->NumRequests; newreq++ ) {
-		numadded += NET_AddSlotRequest( &re_cq->AddressTable[ newreq ], re_cq->NameTable[ newreq ], timetag );
+		numadded += NET_AddSlotRequest( re_cq->AddressTable[ newreq ], re_cq->NameTable[ newreq ], timetag );
 	}
 	return numadded;
 }

@@ -221,7 +221,7 @@ int AddClient( int slot, char *name, int local_client )
 
 		// add and register the new remote player
 		NumRemPlayers++;
-		NET_RegisterRemotePlayer( slot, NULL, name );
+		NET_RegisterRemotePlayer( slot, node_t(), name );
 	}
 
 	return TRUE;
@@ -337,7 +337,7 @@ int ParseChallengeRequestReply( char *recvline, int* challenge )
 // send a client command to the server ----------------------------------------
 //
 PRIVATE
-int Send_COMMAND( const char* clientcommand, node_t* node )
+int Send_COMMAND( const char* clientcommand, const node_t& node )
 {
 	char			buffer[ 2 * NET_MAX_NETPACKET_INTERNAL_LEN ];
 	NetPacket_GMSV*	gamepacket = (NetPacket_GMSV *) buffer;
@@ -357,10 +357,9 @@ int Send_COMMAND( const char* clientcommand, node_t* node )
 
 // send a command to a specific node ( in a datagram ) ------------------------
 //
-int Send_COMMAND_Datagram( const char* commandstring, node_t* node, int anon )
+int Send_COMMAND_Datagram( const char* commandstring, const node_t& node, int anon )
 {
 	ASSERT( commandstring != NULL );
-	ASSERT( node != NULL );
 
 	char			buffer[ NET_MAX_NETPACKET_INTERNAL_LEN ];
 	NetPacket_GMSV*	gamepacket = (NetPacket_GMSV *) buffer;
@@ -398,7 +397,7 @@ int RequestChallenge()
 {
 	ASSERT( LocalPlayerId == PLAYERID_ANONYMOUS );
 
-	return Send_COMMAND_Datagram( challline1, &Server_Node, TRUE );
+	return Send_COMMAND_Datagram( challline1, Server_Node, TRUE );
 }
 
 // request connect to server --------------------------------------------------
@@ -419,7 +418,7 @@ int RequestConnect()
 		Packet_Recv_Rate,
 		"System" );
 	
-	return Send_COMMAND_Datagram( command, &Server_Node, TRUE );
+	return Send_COMMAND_Datagram( command, Server_Node, TRUE );
 }
 
 // request disconnect from server ---------------------------------------------
@@ -432,7 +431,7 @@ int RequestDisconnect()
 	char command[ 75 ];
 	snprintf( command, sizeof( command ), rmvline1 );
 	
-	return Send_COMMAND( command, &Server_Node );
+	return Send_COMMAND( command, Server_Node );
 }
 
 
@@ -446,7 +445,7 @@ int RequestNameChange()
 	char command[ 75 ];
 	snprintf( command, sizeof( command ), nameline1, Player_Name[ LocalPlayerId ] );
 	
-	return Send_COMMAND( command, &Server_Node );
+	return Send_COMMAND( command, Server_Node );
 }
 
 
@@ -1808,10 +1807,8 @@ void NET_ServerProcessPingPacket( NetPacket_GMSV* gamepacket )
 
 // measure ping time to specified server ( gameserver ) -------------------
 //
-int NET_ServerPing( node_t* node, int anon, int fullinfo /*= FALSE*/ )
+int NET_ServerPing( const node_t& node, int anon, int fullinfo /*= FALSE*/ )
 {
-	ASSERT( node != NULL );
-
 	// send request in datagram
 	char szBuffer[ MAX_RE_COMMANDINFO_COMMAND_LEN + 1 ];
 	if ( fullinfo ) {
@@ -1850,7 +1847,7 @@ int NET_ServerList_Get( char* masterhostname, int serverid /*= -1*/ )
 	if ( serverid == -1 ) {
 
 		// send request in datagram
-		Send_COMMAND_Datagram( MASV_LIST, &_MasterServerNode, FALSE );
+		Send_COMMAND_Datagram( MASV_LIST, _MasterServerNode, FALSE );
 
 		// reset information that we are about to receive
 		for ( int sid = 0; sid < MAX_SERVERS; sid++ ) {
@@ -1893,7 +1890,7 @@ int NET_ServerList_Get( char* masterhostname, int serverid /*= -1*/ )
 		// send request in datagram
 		char szBuffer[ MAX_RE_COMMANDINFO_COMMAND_LEN ];
 		sprintf( szBuffer, MASV_INFO, serverid );
-		Send_COMMAND_Datagram( szBuffer, &_MasterServerNode, FALSE );
+		Send_COMMAND_Datagram( szBuffer, _MasterServerNode, FALSE );
 
 	}
 
@@ -2012,7 +2009,7 @@ int NET_ServerList_UpdateServer( RE_IPv4ServerInfo* pServerInfo )
 
 					// request full information about the server
 					if ( AUX_SHOW_PING_IN_SERVERLIST ) {
-						NET_ServerPing( &server.node, TRUE, TRUE );
+						NET_ServerPing( server.node, TRUE, TRUE );
 					}
 					return TRUE;
 				}
@@ -2064,7 +2061,7 @@ int NET_ServerList_AddServer( RE_IPv4ServerInfo* pServerInfo )
 
 		// request full information about the server
 		if ( AUX_SHOW_PING_IN_SERVERLIST ) {
-			NET_ServerPing( &server.node, TRUE, TRUE );
+			NET_ServerPing( server.node, TRUE, TRUE );
 		}
 
 		num_servers_joined++;

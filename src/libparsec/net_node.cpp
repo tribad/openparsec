@@ -21,7 +21,7 @@
 #include <sstream>
 #include "net_node.h"
 
-std::string node_t::print() {
+std::string node_t::print() const {
 	std::ostringstream oss;
 
 	oss << getIP() << ':' << getPort();

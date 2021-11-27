@@ -19,7 +19,10 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */ 
+ */
+//
+//  C++ header
+#include <iostream>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -39,6 +42,7 @@
 // network subsystem & server headers 
 #include "net_defs.h"
 #include "e_defs.h"
+#include "e_relist.h"
 
 // UNP header
 #include "net_wrap.h"
@@ -53,6 +57,9 @@
 //
 int main( int argc, char** argv )
 {
+
+	std::cerr << "sizeof(RE_IPv4ServerInfo):" << sizeof(RE_IPv4ServerInfo) << std::endl;
+
 	// install any signal handlers
 	SYSs_InstallSignalHandlers();
 

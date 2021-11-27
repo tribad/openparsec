@@ -350,7 +350,7 @@ void NET_SetRemotePlayerState( int id, int status, int objclass, int killstat )
 		Player_LastMsgId[ id ]	  = 0;
 		Player_LastUpdateGameStateMsgId[ id ] = 0;
 		Player_Name[ id ][ 0 ]	  = '\0';
-		NETs_SetVirtualAddress( &Player_Node[ id ] );
+		Player_Node[ id ]         = node_t();   //  node_t objects get initialized with the virtual address.
 
 		if ( status == PLAYER_JOINED ) {
 
@@ -424,9 +424,9 @@ void NET_SetRemotePlayerName( int id, const char *name )
 
 // register prospective remote player (may fail if no slot available) ---------
 //
-int NET_RegisterRemotePlayer( int slotid, node_t *node, char *name )
+int NET_RegisterRemotePlayer( int slotid, const node_t& node, char *name )
 {
-	ASSERT( ( node != NULL ) || NET_ProtocolGMSV() );
+	ASSERT( NET_ProtocolGMSV() );
 	ASSERT( name != NULL );
 
 	//NOTE:
@@ -443,16 +443,11 @@ int NET_RegisterRemotePlayer( int slotid, node_t *node, char *name )
 
 		// accept connection
 		DBGTXT( MSGOUT( "NET_RegisterRemotePlayer(): registering player %s with id %d.", name, slotid ); );
-		if ( node != NULL )
-			ADXTXT( node->print().c_str(); );
+			ADXTXT( node.print().c_str(); );
 
 		// init remote player table entries
 		Player_Status[ slotid ]		  = PLAYER_CONNECTED;
-		if ( node != NULL ) {
-			Player_Node[ slotid ] = *node;
-		} else {
-			memset( &Player_Node[ slotid ], 0, sizeof(node_t) );
-		}
+		Player_Node[ slotid ]         = node;
 
 		Player_Ship[ slotid ]		  = NULL;
 		Player_ShipId[ slotid ]		  = SHIPID_NOSHIP;
@@ -474,7 +469,7 @@ int NET_RegisterRemotePlayer( int slotid, node_t *node, char *name )
 
 		// refuse connection
 		DBGTXT( MSGOUT( "NET_RegisterRemotePlayer(): rejecting player %s (no slot available).", name ); );
-		ADXTXT( node->print().c_str(); );
+		ADXTXT( node.print().c_str(); );
 	}
 
 	return slotid;

@@ -29,7 +29,7 @@ int		NET_ServerList_AddLinkInfo( RE_ServerLinkInfo* pServerLinkInfo );
 int		NET_ServerList_AddMapObject( RE_MapObject* pMapObject );
 int		NET_ServerList_SetPONG( int serverid, refframe_t sendframe, int curplayers, int maxplayers );
 int		NET_ServerList_SetINFO( int serverid, refframe_t framediff, int curplayers, int maxplayers, int srv_version_minor, int srv_version_major, char* srv_name );
-int		NET_ServerPing( node_t* node, int anon, int fullinfo = FALSE );
+int		NET_ServerPing( const node_t& node, int anon, int fullinfo = FALSE );
 
 // defaults for "SERVRLIST" command -------------------------------------------
 //

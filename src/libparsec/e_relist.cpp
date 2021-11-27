@@ -929,8 +929,6 @@ int E_REList::NET_Append_RE_KillStats()
 //
 int E_REList::NET_Append_RE_IPv4ServerInfo( const node_t& node, word nServerID, int xpos, int ypos, word flags )
 {
-	std::ostringstream  oss;
-
 	if ( m_Avail < sizeof( RE_IPv4ServerInfo ) ) {
 		return FALSE;
 	}
@@ -939,11 +937,7 @@ int E_REList::NET_Append_RE_IPv4ServerInfo( const node_t& node, word nServerID, 
 	re_ipv4serverinfo->RE_Type			 = RE_IPV4SERVERINFO;
 	re_ipv4serverinfo->RE_BlockSize		 = sizeof( RE_IPv4ServerInfo );
 
-	oss << "sizeof(RE_IPv4ServerInfo):" << sizeof(RE_IPv4ServerInfo) << std::endl;
-
-	SYSs_MsgPut(oss.str().c_str());
 	memcpy(re_ipv4serverinfo->node, &node, 6);
-
 	re_ipv4serverinfo->flags	= flags;
 	re_ipv4serverinfo->serverid = nServerID;
 	re_ipv4serverinfo->xpos     = xpos;

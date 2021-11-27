@@ -751,7 +751,7 @@ void DetermineStargateDormantState( Stargate *stargate )
 //		int ping = -1;
 		if ( stargate->destination_node.address[ 0 ] != 0 ) {
 
-			NET_ServerPing( &stargate->destination_node, TRUE, FALSE );
+			NET_ServerPing( stargate->destination_node, TRUE, FALSE );
 		}
 
 		//NOTE:

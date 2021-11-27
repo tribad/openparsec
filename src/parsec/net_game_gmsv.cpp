@@ -128,7 +128,7 @@ void NETs_UpdateKillStats( RE_KillStats* killstats )
 void NET_PingCurrentServer()
 {
 	// send server ping packet, don't send anonymously, no full info
-	NET_ServerPing( &Server_Node, FALSE, FALSE );
+	NET_ServerPing( Server_Node, FALSE, FALSE );
 }
 
 

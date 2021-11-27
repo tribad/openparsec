@@ -59,7 +59,7 @@ void	NET_SetRemotePlayerState( int id, int status, int objclass, int killstat );
 void	NET_SetRemotePlayerMatrix( int id, const Xmatrx matrix  );
 void	NET_SetRemotePlayerName( int id, const char *name );
 
-int		NET_RegisterRemotePlayer( int slotid, node_t *node, char *name );
+int		NET_RegisterRemotePlayer( int slotid, const node_t& node, char *name );
 
 void	NET_RmEvListReset();
 void	NET_RmEvListUpdateLocations();

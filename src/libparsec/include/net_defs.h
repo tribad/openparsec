@@ -849,7 +849,6 @@ struct RE_IPv4ServerInfo : RE_Header {
 	word	flags;
 	word	serverid;
 	byte	node[6];
-	// sizeof( RE_IPv4ServerInfo ) = (2) + 6 + 2 + 2 + 4 + 4 = 20
 };
 
 // serverlink info flags ------------------------------------------------------

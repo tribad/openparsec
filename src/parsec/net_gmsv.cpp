@@ -241,7 +241,7 @@ int NETs_Join()
 	DBGTXT( MSGOUT( "sending join message to server." ); );
 	NETs_StdGameHeader( PKTP_STREAM, (NetPacket*)GamePacket );
 	NET_RmEvSinglePlayerStatus( (RE_Header*)&GamePacket->RE_List, PLAYER_JOINED, -1, -1 );
-	NETs_AuxSendPacket( (NetPacket*)GamePacket, &Server_Node );
+	NETs_AuxSendPacket( (NetPacket*)GamePacket, Server_Node );
 
 	return TRUE;
 }
@@ -285,7 +285,7 @@ int NETs_Unjoin( byte flag )
 	NETs_StdGameHeader( PKTP_STREAM, (NetPacket*)GamePacket );
 	//FIXME: NET_RmEvSinglePlayerStatus sufficient ?
 	NET_RmEvSinglePlayerAndShipStatus( (RE_Header*)&GamePacket->RE_List, PLAYER_CONNECTED, USER_EXIT, 0 );
-	NETs_AuxSendPacket( (NetPacket*)GamePacket, &Server_Node );
+	NETs_AuxSendPacket( (NetPacket*)GamePacket, Server_Node );
 
 	return TRUE;
 }
@@ -452,7 +452,7 @@ void SendGameState()
 		//UPDTXT( MSGOUT( "updating EVENTS-ONLY to server." ); );
 
 		// send only global RE list packet to the server 
-		NETs_SendPacket( (NetPacket*)GamePacket, &Server_Node );
+		NETs_SendPacket( (NetPacket*)GamePacket, Server_Node );
 
 	} else {
 
@@ -462,7 +462,7 @@ void SendGameState()
 		if ( DeadReckoning( re_pas_status ) == FALSE ) {
 
 			// send the packet to the server ( include global RE list )
-			NETs_SendPacket( (NetPacket*)GamePacket, &Server_Node );
+			NETs_SendPacket( (NetPacket*)GamePacket, Server_Node );
 
 			// copy ShipInfo and store refframe-counter for DeadReckoning test
 			prev_shipinfo		= *re_pas_status;

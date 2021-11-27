@@ -173,7 +173,7 @@ static char packet_graph_send[ PACKET_LOSS_METER_LENGTH ];
 // function prototypes --------------------------------------------------------
 //
 int			NETs_CompareNodes( node_t *node1, node_t *node2 );
-node_t*		NETs_GetSender( int bufid );
+const node_t&		NETs_GetSender( int bufid );
 
 
 // resolve a hostname using the DNS service -----------------------------------
@@ -438,7 +438,7 @@ int UDP_FetchPacket( int bufid )
 		memcpy( &ListenAddress[ bufid ], &from_adress, sizeof( sockaddr_in ) );
 
 		// filter broadcast packets that are looping back
-		if ( LocalNode == *NETs_GetSender( bufid ) ) {
+		if ( LocalNode == NETs_GetSender( bufid ) ) {
 			DBGTXT( MSGOUT( "NET_UDP::UDP_FetchPacket(): dropped packet [loop-back]." ); );
 			// indicate we want to try to receive more packets
 			return TRUE;
@@ -662,7 +662,8 @@ int UDP_KillInterface()
 
 // determine if destination player is virtual ---------------------------------
 //
-int NETs_VirtualNode( node_t *node )
+#if 0
+int NETs_VirtualNode( const node_t& *node )
 {
 	byte *ip = (byte *) node;
 
@@ -680,7 +681,7 @@ int NETs_VirtualNode( node_t *node )
 
 	return TRUE;
 }
-
+#endif
 
 // fill destination player address with virtual identifier --------------------
 //
@@ -703,20 +704,18 @@ void NETs_SetBroadcastAddress( node_t *node )
 
 // static unresolved virtual node address (must be set correctly!) ------------
 //
-static node_t virtual_node = { { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 } };
+static node_t virtual_node;
 
 
 // retrieve sender's node address from listen header --------------------------
 //
-node_t* NETs_GetSender( int bufid )
+const node_t& NETs_GetSender( int bufid )
 {
 	ASSERT( ( NetConnected != NETWORK_GAME_SIMULATED ) ||
 			( bufid == VIRTUAL_BUFFER_ID ) );
 
 	ASSERT( bufid >= VIRTUAL_BUFFER_ID );
 	ASSERT( bufid < NUM_LISTEN_BUFFERS );
-
-	node_t *node;
 
 	if ( bufid != VIRTUAL_BUFFER_ID ) {
 
@@ -726,41 +725,39 @@ node_t* NETs_GetSender( int bufid )
 		// we don't want to assume there is enough memory in the structure
 		// after the sin_addr field. (usually there are eight irrelevant bytes)
 
-		node = &ListenSenderStorage[ bufid ];
+		ListenSenderStorage[ bufid ].setAddress(ListenAddress[ bufid ]);
 
-		memcpy( node, &ListenAddress[ bufid ].sin_addr, IP_ADR_LENGTH );
-		UDP_StoreNodePort( node, ntohs( ListenAddress[ bufid ].sin_port ) );
-
+		return ListenSenderStorage[bufid];
 	} else {
 
-		node = &virtual_node;
 		DBGTXT( MSGOUT( "NETs_GetSender(): sender identification for virtual packet." ); );
 	}
 
-	return node;
+	return virtual_node;
 }
 
 
 // resolve node address of sender of packet in specified buffer ---------------
 //
-void NETs_ResolveSender( node_t *node, int bufid )
+const node_t& NETs_ResolveSender( int bufid )
 {
 	ASSERT( ( NetConnected != NETWORK_GAME_SIMULATED ) ||
 			( bufid == VIRTUAL_BUFFER_ID ) );
 
 	if ( bufid != VIRTUAL_BUFFER_ID ) {
 
-		*node = *NETs_GetSender( bufid );
+		return NETs_GetSender( bufid );
 
 	} else {
 
 		DBGTXT( MSGOUT( "NETs_ResolveSender(): resolving virtual packet." ); );
 
 		// set address to "virtual player"
-		NETs_SetVirtualAddress( node );
 	}
+	return virtual_node;
 }
 
+#if 0
 
 // output complete ip address (resolved) -------------------------------------
 //
@@ -771,7 +768,7 @@ void NETs_PrintNode( node_t *node )
 
 	MSGOUT( node_address_str, ipstring );
 }
-
+#endif
 
 // flush all listen buffers ---------------------------------------------------
 //
@@ -954,14 +951,14 @@ int ChainPacket( NetPacket *gamepacket, int bufid )
 
 		// search for packet of same sender already in chain
 		for ( ; scan->nextblock; scan = scan->nextblock ) {
-			if ( *NETs_GetSender( scan->nextblock->bufferno ) == *NETs_GetSender( bufid ) ) {
+			if ( NETs_GetSender( scan->nextblock->bufferno ) == NETs_GetSender( bufid ) ) {
 				break;
 			}
 		}
 
 		// search to right insert position (according to message id)
 		for ( ; scan->nextblock; scan = scan->nextblock ) {
-			if ( *NETs_GetSender( scan->nextblock->bufferno ) == *NETs_GetSender( bufid ) ) {
+			if ( NETs_GetSender( scan->nextblock->bufferno ) == NETs_GetSender( bufid ) ) {
 				break;
 			}
 			if ( messageid <= (dword)scan->nextblock->messageid  ) {
@@ -1221,12 +1218,12 @@ int ForcePacketDrop()
 
 // low-level packet sending function -------------------------------------------
 // 
-void _SendPacket( NetPacket* gamepacket, node_t* node, int include_REList, int enforce_packet_sent )
+void _SendPacket( NetPacket* gamepacket, const node_t& node, int include_REList, int enforce_packet_sent )
 {
 	CHECK_SIMULATION();
 	
 	// don't send packets addressed to virtual players
-	if ( NETs_VirtualNode( node ) )
+	if ( node.isVirtual() )
 		return;
 	
 	// check for artificial packet drop
@@ -1260,14 +1257,15 @@ void _SendPacket( NetPacket* gamepacket, node_t* node, int include_REList, int e
 	sockaddr_in SendAddress;
 	bzero( &SendAddress, sizeof( SendAddress ) );
 	SendAddress.sin_family = AF_INET;
-	SendAddress.sin_port = htons( UDP_GetNodePort( node ) );
-	memcpy ( &SendAddress.sin_addr, node, IP_ADR_LENGTH );
+	SendAddress.sin_port   = node.getPort();
+	memcpy ( &SendAddress.sin_addr, node.address, IP_ADR_LENGTH );
 
 	int rc = -1;
 	int retrycount = 0;
 	for( retrycount = 0; retrycount < MAX_SEND_RETRY_COUNT ;retrycount++ ) { 
 
-		rc = sendto( udp_socket, (char *) SendNetPacketExternal, pktsize,             0, (SA *)&SendAddress, sizeof( SendAddress ) );
+		rc = sendto( udp_socket, (char *) SendNetPacketExternal, pktsize,
+		            0, (SA *)&SendAddress, sizeof( SendAddress ) );
 		
 		//NOTE:
 		// if the packet could not be sent (EWOULDBLOCK),
@@ -1320,7 +1318,7 @@ void _SendPacket( NetPacket* gamepacket, node_t* node, int include_REList, int e
 
 // send udp packet after inserting global remote-event list -------------------
 //
-void NETs_SendPacket( NetPacket* gamepacket, node_t *node )
+void NETs_SendPacket( NetPacket* gamepacket, const node_t& node )
 {
 	// remote event list is included here and packet is discarded if sendto fails with E_WOULDBLOCK
 	_SendPacket( gamepacket, node, TRUE, FALSE );
@@ -1329,7 +1327,7 @@ void NETs_SendPacket( NetPacket* gamepacket, node_t *node )
 
 // send udp packet ------------------------------------------------------------
 //
-void NETs_AuxSendPacket( NetPacket* gamepacket, node_t *node )
+void NETs_AuxSendPacket( NetPacket* gamepacket, const node_t& node )
 {
 	// remote event list is NOT included here and packet is retried if sendto fails with E_WOULDBLOCK
 	_SendPacket( gamepacket, node, FALSE, TRUE );

@@ -18,9 +18,9 @@
 
 // declare prototypes when we do not compile for shared lib gamecode support --
 //
-int		NET_AcquireRemoteSlot			( node_t *node );
-int		NET_AddSlotRequest				( node_t *node, char *name, int timetag );
-int		NET_DelSlotRequest				( node_t *node );
+int		NET_AcquireRemoteSlot			( const node_t& node );
+int		NET_AddSlotRequest				( const node_t& node, char *name, int timetag );
+int		NET_DelSlotRequest				( const node_t& node );
 int		NET_MergeSlotRequests			( NetPacket_PEER* gamepacket, int timetag );
 void	NET_ResetSlotReqQueue			();
 void	NET_RmEvSinglePlayerTable		( NetPacket_PEER* gamepacket );
