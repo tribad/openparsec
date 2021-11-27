@@ -274,18 +274,17 @@ int NET_AcquireRemoteSlot( node_t *node )
 	int slotid		= SLOTID_CONNECT_REFUSED;
 	int numplayers	= NumRemPlayers;
 	
-	node_t sendnode;
-	NETs_MakeNodeRaw( &sendnode, node );
-	
+	node_t sendnode(*node);
+
 	// try all slots
 	for ( int id = 0; id < MAX_NET_PROTO_PLAYERS; id++ ) {
 		
 		if ( Player_Status[ id ] != PLAYER_INACTIVE ) {
 			
 			// check whether remote player already has an active slot
-			node_t slotnode;
-			NETs_MakeNodeRaw( &slotnode, &Player_Node[ id ] );
-			if ( NETs_CompareNodes( &sendnode, &slotnode ) == NODECMP_EQUAL ) {
+			node_t slotnode(Player_Node[ id ]);
+
+			if ( sendnode == slotnode ) {
 				DBGTXT( MSGOUT( "NET_AcquireRemoteSlot(): slot %d reacquired.", id ); );
 				slotid		  = id;
 				NumRemPlayers = numplayers;
@@ -315,7 +314,7 @@ int NET_AddSlotRequest( node_t *node, char *name, int timetag )
 	// compare to old requests
 	for ( int creq = 0; creq < NumSlotRequests; creq++ )
 		if ( SlotReqQueue[ creq ].slotid != SLOTID_DELETED )
-			if ( NETs_CompareNodes( &SlotReqQueue[ creq ].node, node ) == NODECMP_EQUAL )
+			if ( SlotReqQueue[ creq ].node == *node )
 				return 0;
 
 	if ( NumSlotRequests >= MAX_SLOT_REQUESTS ) {
@@ -336,7 +335,7 @@ int NET_AddSlotRequest( node_t *node, char *name, int timetag )
 	CopyRemoteName( SlotReqQueue[ qpos ].name, name );
 
 	DBGTXT( MSGOUT( "NET_AddSlotRequest(): appended entry." ); );
-	ADXTXT( NETs_PrintNode( node ); );
+	ADXTXT( node->print().c_str(); );
 
 	// return number of added slot requests
 	return 1;
@@ -355,7 +354,7 @@ int NET_DelSlotRequest( node_t *node )
 	// look for request with specified address
 	for ( int creq = 0; creq < NumSlotRequests; creq++ )
 		if ( SlotReqQueue[ creq ].slotid != SLOTID_DELETED ) {
-			if ( NETs_CompareNodes( &SlotReqQueue[ creq ].node, node ) == NODECMP_EQUAL ) {
+			if ( SlotReqQueue[ creq ].node == *node ) {
 				// disable request (no actual deletion)
 				SlotReqQueue[ creq ].slotid = SLOTID_DELETED;
 				nodefound = TRUE;
@@ -366,7 +365,7 @@ int NET_DelSlotRequest( node_t *node )
 		
 	if ( nodefound ) {
 		DBGTXT( MSGOUT( "NET_DelSlotRequest(): removed entry." ); );
-		ADXTXT( NETs_PrintNode( node ); );
+		ADXTXT(  node->print().c_str() ; );
 	}
 
 	// reset queue if only deleted entries found
@@ -445,7 +444,7 @@ void NET_RmEvSinglePlayerTable( NetPacket_PEER* gamepacket )
 		// store address and name if player connected
 		if ( Player_Status[ id ] != PLAYER_INACTIVE ) {
 
-			NETs_MakeNodeRaw( &re_playerlist->AddressTable[ id ], &Player_Node[ id ] );
+			re_playerlist->AddressTable[ id ] = Player_Node[ id ] ;
 			CopyRemoteName( re_playerlist->NameTable[ id ], Player_Name[ id ] );
 		}
 
@@ -486,7 +485,7 @@ void NET_RmEvSinglePlayerTable( NetPacket_PEER* gamepacket )
 			// store address and name if player connected
 			if ( Player_Status[ id + 4 ] != PLAYER_INACTIVE ) {
 				
-				NETs_MakeNodeRaw( &re_playerlist->AddressTable[ id ], &Player_Node[ id + 4 ] );
+				re_playerlist->AddressTable[ id ] = Player_Node[ id + 4 ] ;
 				CopyRemoteName( re_playerlist->NameTable[ id ], Player_Name[ id + 4 ] );
 			}
 			

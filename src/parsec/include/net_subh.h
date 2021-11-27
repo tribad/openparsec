@@ -137,17 +137,17 @@ void		NET_DrawEntryModeText();
 
 // packet api functions
 
-int			NETs_CompareNodes( node_t *node1, node_t *node2 );
+//int			NETs_CompareNodes( node_t *node1, node_t *node2 );
 int			NETs_VirtualNode( node_t *node );
 void		NETs_SetVirtualAddress( node_t *node );
 void		NETs_SetBroadcastAddress( node_t *node );
 
-void		NETs_ResolveNode( node_t* node_dst, node_t* node_src );
-void		NETs_MakeNodeRaw( node_t* node_dst, node_t* node_src );
+//void		NETs_ResolveNode( node_t* node_dst, node_t* node_src );
+//void		NETs_MakeNodeRaw( node_t* node_dst, node_t* node_src );
 node_t*		NETs_GetSender( int bufid );
 void		NETs_ResolveSender( node_t *node, int bufid );
 
-void		NETs_PrintNode( node_t *node );
+//8:30void		NETs_PrintNode( node_t *node );
 
 void		NETs_FlushListenBuffers();
 void		NETs_ProcessPacketChain	( void (*procfunc)(NetPacket* gamepacket,int bufid) );

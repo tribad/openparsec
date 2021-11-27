@@ -27,29 +27,6 @@ else()
     message(WARNING "os-release info not found. Assuming a windows build.")
 endif()
 ##
-##  Load openparsec version number
-if (EXISTS ${CMAKE_SOURCE_DIR}/VERSION)
-    file(STRINGS ${CMAKE_SOURCE_DIR}/VERSION VINFO)
-    foreach(NameAndValue ${VINFO})
-        # Strip leading spaces
-        string(REGEX REPLACE "^[ ]+" "" NameAndValue ${NameAndValue})
-        # Find variable name
-        string(REGEX MATCH "^[^=]+" Name ${NameAndValue})
-        # Find the value
-        string(REPLACE "${Name}=" "" Value ${NameAndValue})
-        # Set the variable
-        set(${Name} "${Value}")
-    endforeach()
-    set(OPENPARSEC_VERSION_MAJOR "${VERSION_MAJOR}")
-    set(OPENPARSEC_VERSION_MINOR "${VERSION_MINOR}")
-    set(OPENPARSEC_VERSION_PATCH "${VERSION_PATCH}")
-else()
-    message(WARNING "version info not found")
-    set(OPENPARSEC_VERSION_MAJOR "0")
-    set(OPENPARSEC_VERSION_MINOR "2")
-    set(OPENPARSEC_VERSION_PATCH "1")
-endif()
-##
 ##  Here we look for the OpenGL support.
 set(OpenGL_GL_PREFERENCE GLVND)
 find_package (OpenGL COMPONENTS OpenGL REQUIRED)
@@ -287,7 +264,8 @@ add_executable(${PROJECT_NAME}
     ../libparsec/sys_date.cpp
     ../libparsec/debug.cpp
     ../libparsec/sys_swap.cpp
-    ../libparsec/net_util.cpp
+        ../libparsec/net_util.cpp
+        ../libparsec/net_node.cpp
     ../libparsec/sw_path.cpp
     ../libparsec/sys_file.cpp
     ../libparsec/e_modulemanager.cpp

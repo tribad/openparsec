@@ -5,6 +5,10 @@
 #ifndef _NET_DEFS_H_
 #define _NET_DEFS_H_
 
+#include <string>
+#include <cstring>
+#include <sys/socket.h>
+#include <arpa/inet.h>
 
 // ----------------------------------------------------------------------------
 // NETWORKING SUBSYSTEM (NET) related definitions                             -
@@ -61,14 +65,6 @@
 //
 #define MAX_NET_PROTO_PLAYERS	CurMaxPlayers	// declared in NET_GLOB.H
 
-
-// node address compare results -----------------------------------------------
-//
-#define NODECMP_LESSTHAN		-1
-#define NODECMP_EQUAL			0
-#define NODECMP_GREATERTHAN		1
-
-
 // message id for connectionless datagrams ------------------------------------
 //
 #define MSGID_DATAGRAM			0xFFFFFFFF
@@ -117,11 +113,6 @@
 #define MAX_SLOT_REQUESTS		8
 
 
-// maximum number of bytes in a remote address --------------------------------
-// (regardless of protocol; accommodates IPv6)
-#define MAX_NODE_ADDRESS_BYTES	16
-
-
 // maximum number of specified masterservers ----------------------------------
 //
 #define MAX_MASTERSERVERS		3
@@ -152,14 +143,7 @@
 // various size constants -----------------------------------------------------
 //
 #include "net_limits.h"
-
-
-// encapsulate node address in portable manner --------------------------------
-//
-struct node_t {
-	byte		address[ MAX_NODE_ADDRESS_BYTES ];
-};
-
+#include "net_node.h"
 
 // status of local ship that is transmitted to remote players -----------------
 //

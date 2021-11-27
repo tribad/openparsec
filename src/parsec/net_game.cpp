@@ -163,7 +163,7 @@ void NET_InitLocalPlayer()
 	Player_Ship[ LocalPlayerId ]   = MyShip;
 	Player_ShipId[ LocalPlayerId ] = SHIPID_LOCALPLAYER;
 
-	NETs_ResolveNode( &Player_Node[ LocalPlayerId ], &LocalNode );
+	Player_Node[ LocalPlayerId ] = LocalNode ;
 
 	CopyRemoteName( Player_Name[ LocalPlayerId ], LocalPlayerName );
 }
@@ -223,7 +223,7 @@ void NET_RemoveRemotePlayers()
 			continue;
 
 		DBGTXT( MSGOUT( "NET_RemoveRemotePlayers(): removing player: %s (id %d).", Player_Name[ id ], id ); );
-		DBGTXT( NETs_PrintNode( &Player_Node[ id ] ); );
+		DBGTXT( Player_Node[ id ].print().c_str(); );
 
 		// if player is joined ship must be destroyed
 		if ( Player_Status[ id ] == PLAYER_JOINED ) {
@@ -318,7 +318,7 @@ void NET_SetRemotePlayerState( int id, int status, int objclass, int killstat )
 		Player_ShipId[ id ]    = SHIPID_LOCALPLAYER;
 		Player_KillStat[ id ]  = killstat;
 		Player_Name[ id ][ 0 ] = '\0';
-		NETs_ResolveNode( &Player_Node[ id ], &LocalNode );
+		Player_Node[ id ] = LocalNode ;
 
 		// we also must reset the msg id's for the local player if LocalPlayerId == 0, because 
 		// PKTP_CONNECT and PKTP_CONNECT_REPLY packets contain SendPlayerId 0.
@@ -444,7 +444,7 @@ int NET_RegisterRemotePlayer( int slotid, node_t *node, char *name )
 		// accept connection
 		DBGTXT( MSGOUT( "NET_RegisterRemotePlayer(): registering player %s with id %d.", name, slotid ); );
 		if ( node != NULL )
-			ADXTXT( NETs_PrintNode( node ); );
+			ADXTXT( node->print().c_str(); );
 
 		// init remote player table entries
 		Player_Status[ slotid ]		  = PLAYER_CONNECTED;
@@ -474,7 +474,7 @@ int NET_RegisterRemotePlayer( int slotid, node_t *node, char *name )
 
 		// refuse connection
 		DBGTXT( MSGOUT( "NET_RegisterRemotePlayer(): rejecting player %s (no slot available).", name ); );
-		ADXTXT( NETs_PrintNode( node ); );
+		ADXTXT( node->print().c_str(); );
 	}
 
 	return slotid;
@@ -1268,7 +1268,7 @@ void NET_RemovePlayer( int playerid )
 	}
 
 	DBGTXT( MSGOUT( "NET_RemovePlayer(): removing player: %s (id %d).", Player_Name[ playerid ], playerid ); );
-	DBGTXT( NETs_PrintNode( &Player_Node[ playerid ] ); );
+	DBGTXT( Player_Node[ playerid ].print().c_str(); );
 
 	// if player is joined ship must be destroyed
 	if ( Player_Status[ playerid ] == PLAYER_JOINED ) {
