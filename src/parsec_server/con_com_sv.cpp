@@ -440,7 +440,9 @@ void Cmd_CLS()
 		InitTalkMode();
 
 	} else {
+#ifdef USE_CURSES
 		wclear( g_curses_out_win );
+#endif
 	}
 }
 
