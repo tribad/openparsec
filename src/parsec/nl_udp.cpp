@@ -179,12 +179,12 @@ int UDPs_GetLocalIP()
 			if ( NET_ProtocolPEER() ) {
 
 				// append port number to ip address
-				UDP_StoreNodePort( &LocalNode, server_udp_port );
+				LocalNode.setPort( server_udp_port );
 
 			} else {
 
 				// append zero port number to ip address
-				UDP_StoreNodePort( &LocalNode, 0 );
+				LocalNode.setPort( 0 );
 			}
 		}
 
@@ -207,7 +207,7 @@ void UDPs_GetLocalBroadcast()
 	inet_ntop( AF_INET, &LocalBroadcast, local_broadcast, MAX_IPADDR_LEN + 1 );
 
 	// append port number to ip address
-	UDP_StoreNodePort( &LocalBroadcast, server_udp_port );
+	LocalBroadcast.setPort( server_udp_port );
 
 #ifdef USE_DIRECTED_BROADCASTS
 

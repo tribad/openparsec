@@ -224,27 +224,6 @@ int NET_ResolveHostName( const char* hostname, char* ipaddress, node_t* node )
 	return FALSE;
 }
 
-
-// store port number into node address structure ------------------------------
-//
-void UDP_StoreNodePort( node_t *node, word port )
-{
-	ASSERT( node != NULL );
-
-	node->address[ 4 ] = port >> 8;
-	node->address[ 5 ] = port & 0xff;
-}
-
-
-// fetch port number from node address structure ------------------------------
-//
-word UDP_GetNodePort( node_t *node )
-{
-	ASSERT( node != NULL );
-
-	return ( ( (word)node->address[ 4 ] << 8 ) | node->address[ 5 ] );
-}
-
 // allocate received packets chain (head node) --------------------------------
 //
 PRIVATE
@@ -725,7 +704,7 @@ const node_t& NETs_GetSender( int bufid )
 		// we don't want to assume there is enough memory in the structure
 		// after the sin_addr field. (usually there are eight irrelevant bytes)
 
-		ListenSenderStorage[ bufid ].setAddress(ListenAddress[ bufid ]);
+		ListenSenderStorage[ bufid ] = ListenAddress[ bufid ];
 
 		return ListenSenderStorage[bufid];
 	} else {
@@ -1253,19 +1232,14 @@ void _SendPacket( NetPacket* gamepacket, const node_t& node, int include_REList,
 #ifdef SAVE_PACKETSTREAM
 	SaveLocalPacket( SendNetPacketExternal );
 #endif // SAVE_PACKETSTREAM
-	
-	sockaddr_in SendAddress;
-	bzero( &SendAddress, sizeof( SendAddress ) );
-	SendAddress.sin_family = AF_INET;
-	SendAddress.sin_port   = node.getPort();
-	memcpy ( &SendAddress.sin_addr, node.address, IP_ADR_LENGTH );
+	sockaddr SendAddress = node.getAddress();
 
 	int rc = -1;
 	int retrycount = 0;
 	for( retrycount = 0; retrycount < MAX_SEND_RETRY_COUNT ;retrycount++ ) { 
 
 		rc = sendto( udp_socket, (char *) SendNetPacketExternal, pktsize,
-		            0, (SA *)&SendAddress, sizeof( SendAddress ) );
+		            0, &SendAddress, sizeof( SendAddress ) );
 		
 		//NOTE:
 		// if the packet could not be sent (EWOULDBLOCK),

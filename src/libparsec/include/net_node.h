@@ -25,6 +25,7 @@
 #include <cstring>
 
 #include <arpa/inet.h>
+#include <endian.h>
 
 // maximum number of bytes in a remote address --------------------------------
 // (regardless of protocol; accommodates IPv6)
@@ -32,20 +33,30 @@
 
 // encapsulate node address in portable manner --------------------------------
 //
-struct node_t {
+class node_t {
+  public:
 	//
 	//  The constructor creates a virtual node by setting the
 	//  address array to all zeros.
 	node_t() {
-		memset(address, 0, sizeof(address));
+		memset(&mAddress, 0, sizeof(mAddress));
 	}
+	node_t(const struct sockaddr& aOther) {
+		memset(&mAddress, 0, sizeof(mAddress));
+		mAddress = aOther;
+	};
+	node_t(const struct sockaddr_in& aOther) {
+		memset(&mAddress, 0, sizeof(mAddress));
+		memcpy( &mAddress, &aOther, sizeof(aOther));
+	};
 	inline bool operator==(const node_t& aOther) const;
 	inline bool operator!=(const node_t& aOther) const;
 	inline bool operator<(const node_t& aOther) const;
 	inline bool operator>(const node_t& aOther) const;
 
-	inline void setAddress(const struct sockaddr_in & aAddress);
-	void setIP(const std::string& aIp );
+
+	inline sockaddr getAddress() const;
+	inline void setIP(const std::string& aIp );
 	inline void setPort(uint16_t aPort) ;
 	inline std::string getIP() const;
 	inline uint16_t getPort() const;
@@ -53,12 +64,14 @@ struct node_t {
 	std::string print() const;
 	inline bool isLocal() const;
 	inline bool isVirtual() const ;
-
-	uint8_t address[ MAX_NODE_ADDRESS_BYTES ];
+	inline bool isAny() const ;
+  private:
+	struct sockaddr mAddress;
+	//uint8_t address[ MAX_NODE_ADDRESS_BYTES ];
 };
 
 bool node_t::operator==(const node_t &aOther) const {
-	return (memcmp(address, aOther.address, sizeof(address)) == 0);
+	return (memcmp(&mAddress, &aOther.mAddress, sizeof(mAddress)) == 0);
 }
 
 bool node_t::operator!=(const node_t &aOther) const {
@@ -66,37 +79,38 @@ bool node_t::operator!=(const node_t &aOther) const {
 }
 
 bool node_t::operator<(const node_t &aOther) const {
-	return (memcmp(address, aOther.address, sizeof(address)) < 0);
+	return (memcmp(&mAddress, &aOther.mAddress, sizeof(mAddress)) < 0);
 }
 
 bool node_t::operator>(const node_t &aOther) const {
-	return (memcmp(address, aOther.address, sizeof(address)) > 0);
+	return (memcmp(&mAddress, &aOther.mAddress, sizeof(mAddress)) > 0);
 }
 
-void node_t::setAddress(const struct sockaddr_in &aAddress) {
-	memcpy( address, &aAddress.sin_addr, sizeof(aAddress.sin_addr) );
-	address[ 4 ] = aAddress.sin_port >> 8;  // TODO: probably wrong order of port number.
-	address[ 5 ] = aAddress.sin_port & 0xff;
+sockaddr node_t::getAddress() const {
+	return mAddress;
+}
+
+void node_t::setIP(const std::string &aIp) {
+	inet_aton( aIp.c_str(), &((struct sockaddr_in*)&mAddress)->sin_addr);
 }
 
 std::string node_t::getIP() const
 {
 	char ipString[INET_ADDRSTRLEN];
 
-	inet_ntop( AF_INET, &address, ipString, INET_ADDRSTRLEN );
+	inet_ntop( AF_INET, &mAddress, ipString, INET_ADDRSTRLEN );
 
-	return std::string(ipString);
+	return std::string { ipString };
 }
 //
 //  convert aPort (network byte order) to storage (host byte order)
 void node_t::setPort(uint16_t aPort) {
-	address[ 4 ] = aPort >> 8;
-	address[ 5 ] = aPort & 0xff;
+	((struct sockaddr_in*)&mAddress)->sin_port = htons(aPort);
 }
 
 //  convert from host to network byteorder.
 uint16_t node_t::getPort() const {
-	return ( ( (uint16_t)address[ 4 ] << 8 ) | address[ 5 ] );
+	return ntohs(((struct sockaddr_in*)&mAddress)->sin_port);
 }
 //
 //  The default construted node_t is used for local
@@ -104,6 +118,11 @@ bool node_t::isVirtual() const {
 	node_t empty;
 
 	return (*this == empty);
+}
+
+bool node_t::isAny() const {
+	return (((struct sockaddr_in*)&mAddress)->sin_addr.s_addr == INADDR_ANY) &&
+	       (((struct sockaddr_in*)&mAddress)->sin_port == 0);
 }
 
 #endif // _NET_NODE_H_

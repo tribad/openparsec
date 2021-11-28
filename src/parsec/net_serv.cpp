@@ -1511,8 +1511,8 @@ int NET_ResolveServerNode()
 	}
 
 	// save server address for later use by NET_GMSV.C
-	inet_aton( resolved_name, (in_addr*)&Server_Node );
-	UDP_StoreNodePort( &Server_Node, port );
+	Server_Node.setIP(resolved_name);
+	Server_Node.setPort( port );
 
 	return TRUE;
 }
@@ -1837,7 +1837,7 @@ int NET_ServerList_Get( char* masterhostname, int serverid /*= -1*/ )
 
 	// try to resolve DNS name to IP address (still as string)
 	if ( NET_ResolveHostName( masterhostname, ms_resolved, &_MasterServerNode ) ) {
-		UDP_StoreNodePort( &_MasterServerNode, DEFAULT_MASTERSERVER_UDP_PORT );
+		_MasterServerNode.setPort(DEFAULT_MASTERSERVER_UDP_PORT );
 		MSGOUT( "masterserver %s resolved to: %s", masterhostname, ms_resolved );
 	} else {
 		return FALSE;
@@ -2165,25 +2165,19 @@ void NET_ServerList_Print()
 				}
 			}*/
 
-			sprintf( output_line, "%s : %u.%u.%u.%u:%d : %d/%d : %dms", server->server_name,
-															server->node.address[ 0 ], 
-															server->node.address[ 1 ], 
-															server->node.address[ 2 ], 
-															server->node.address[ 3 ],
-															UDP_GetNodePort( &server->node ),
+			sprintf( output_line, "%s : %s:%d : %d/%d : %dms", server->server_name,
+														server->node.getIP().c_str(),
+														server->node.getPort() ,
 															server->number_of_players,
 					 										server->max_players, 
 															server->ping_in_ms );
 		} else {
 
-			sprintf( output_line, "%s : %u.%u.%u.%u:%d : %d/%d", server->server_name,
-															server->node.address[ 0 ], 
-															server->node.address[ 1 ], 
-															server->node.address[ 2 ], 
-															server->node.address[ 3 ],
-															UDP_GetNodePort( &server->node ),
-															server->number_of_players,
-					 										server->max_players );
+			sprintf( output_line, "%s : %s:%d : %d/%d", server->server_name,
+			        											server->node.getIP().c_str(),
+																server->node.getPort() ,
+																server->number_of_players,
+					 											server->max_players );
 		}
 
 		if ( showline ) {

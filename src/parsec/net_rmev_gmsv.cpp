@@ -384,13 +384,13 @@ void NET_ExecRmEvIPv4ServerInfo( RE_IPv4ServerInfo* pIPv4ServerInfo )
 {
 	ASSERT( pIPv4ServerInfo != NULL );
 
-	MSGOUT( "got server %d from masterserver: %d.%d.%d.%d:%d at pos %d/%d",	
+	MSGOUT( "got server %d from masterserver: %s:%d at pos %d/%d",
 				pIPv4ServerInfo->serverid,
 				pIPv4ServerInfo->node[ 0 ],
 				pIPv4ServerInfo->node[ 1 ],
 				pIPv4ServerInfo->node[ 2 ],
 				pIPv4ServerInfo->node[ 3 ],
-				UDP_GetNodePort( (node_t*)pIPv4ServerInfo->node ),
+	            htons(*(uint16_t*)(&pIPv4ServerInfo->node[ 4 ]) ),
 				pIPv4ServerInfo->xpos,
 				pIPv4ServerInfo->ypos
 				);
