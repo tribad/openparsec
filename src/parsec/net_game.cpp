@@ -192,7 +192,7 @@ void NET_InitRemotePlayerTables()
 		Player_LastMsgId[ id ]	  = 0;
 		Player_LastUpdateGameStateMsgId[ id ] = 0;
 		Player_Name[ id ][ 0 ]	  = '\0';
-		memset( &Player_Node[ id ], 0, sizeof( node_t ) );
+		Player_Node[ id ]         =  node_t();
 
 #ifdef LINKED_PROTOCOL_GAMESERVER		
 		if ( NET_ProtocolGMSV() ) {

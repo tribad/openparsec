@@ -718,7 +718,7 @@ struct RE_ParticleObject : RE_Header { //2
 // list of all remote players
 struct RE_PlayerList : RE_Header { //2
 	ShipCreateInfo	ShipInfoTable[MAX_NET_IPX_PEER_PLAYERS];
-	node_t			AddressTable[MAX_NET_IPX_PEER_PLAYERS];
+	uint8_t			AddressTable[MAX_NET_IPX_PEER_PLAYERS][MAX_NODE_ADDRESS_BYTES];
 	byte			SyncValKillLimit;
 	byte			SyncValNebulaId;
 	byte			Status[ MAX_NET_IPX_PEER_PLAYERS ];
@@ -728,7 +728,7 @@ struct RE_PlayerList : RE_Header { //2
 // list of remote players trying to connect
 struct RE_ConnectQueue : RE_Header {
 	char		NameTable[MAX_SLOT_REQUESTS][MAX_PLAYER_NAME + 1];
-	node_t		AddressTable[MAX_SLOT_REQUESTS];
+	uint8_t		AddressTable[MAX_SLOT_REQUESTS][MAX_NODE_ADDRESS_BYTES];
 	short		NumRequests;
 };
 

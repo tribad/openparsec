@@ -822,17 +822,17 @@ int Cmd_JUMP( char *paramstr )
 	CON_DisableLineFeed();
 		
 	// store temporary server name globally
-	CurJumpServerNode = (node_t *) ALLOCMEM( sizeof( node_t ) );
-	if ( CurJumpServerNode == NULL )
+	CurJumpServerNode = new node_t;
+	if ( CurJumpServerNode == nullptr )
 		OUTOFMEM( 0 );
 
 
 	// convert from hostname to node_t
 	//FIXME: we only support the default gameserver port for the jump command
-	NET_ResolveHostName( gs_hostname, NULL, CurJumpServerNode );
+	NET_ResolveHostName( gs_hostname, NULL, *CurJumpServerNode );
 
 	// perform jump (frees server name!)
-        JumpToCurJumpServer();
+    JumpToCurJumpServer();
 
 	return TRUE;
 }

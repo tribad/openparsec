@@ -26,7 +26,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <cstring>
 
 // compilation flags/debug support
 #include "config.h"
@@ -180,7 +180,7 @@ void CreateRemotePlayer( RE_PlayerList *re_playerlist, int id )
 	Player_LastUpdateGameStateMsgId[ id ] = 0;
 
 	// store address and name
-	Player_Node[ id ] = re_playerlist[ listnum ].AddressTable[ id % 4 ] ;
+	Player_Node[ id ] = *(sockaddr*)(&re_playerlist[ listnum ].AddressTable[ id % 4 ][0] );
 	CopyRemoteName( Player_Name[ id ], re_playerlist[ listnum ].NameTable[ id % 4 ] );
 
 	// if player is joined store ship info and create ship
@@ -253,9 +253,8 @@ void StoreRealDestination( NetPacket_PEER* gamepacket, int qpos, int snooper )
 	// refused a connection, there is no other place
 	// where his node address could be stored in order
 	// to be transmitted to the snooper.
-
-	CopyRemoteNode( re_playerlist[ snooper >> 2 ].AddressTable[ snooper % 4 ],
-					SlotReqQueue[ qpos ].node );
+	sockaddr nodeAddress = SlotReqQueue[ qpos ].node.getAddress();
+	memcpy(&(re_playerlist[ snooper >> 2 ].AddressTable[ snooper % 4 ][0]), &nodeAddress , min(sizeof(sockaddr), (size_t)MAX_NODE_ADDRESS_BYTES) );
 	CopyRemoteName( re_playerlist[ snooper >> 2 ].NameTable[ snooper % 4 ],
 					SlotReqQueue[ qpos ].name );
 }
@@ -461,7 +460,7 @@ void ProcessConnect( NetPacket_PEER* gamepacket, int bufid )
 		// local host is now slave
 
 		// remember address of sender (who is temporary master for local host)
-		CopyRemoteNode( master_node, node );
+		master_node = node ;
 
 		// exit connect-loop to slotreq-loop
 		connect_loop_exit = EXIT_TO_SLOTREQ_LOOP;
@@ -1056,7 +1055,11 @@ void SnoopConnect( NetPacket_PEER* gamepacket, int bufid )
 	ASSERT( re_playerlist->RE_Type == RE_PLAYERLIST );
 
 	// remove request from queue
-	NET_DelSlotRequest( re_playerlist[ LocalPlayerId >> 2 ].AddressTable[ LocalPlayerId % 4 ] );
+	sockaddr nodeAddress;
+
+	memcpy(&nodeAddress, &re_playerlist[ LocalPlayerId >> 2 ].AddressTable[ LocalPlayerId % 4 ][0], min(sizeof(nodeAddress), (size_t)MAX_NODE_ADDRESS_BYTES) );
+	node_t node(nodeAddress);
+	NET_DelSlotRequest(  node );
 
 	// filter packets actually addressed to local host
 	if ( destid == LocalPlayerId ) {
@@ -1066,7 +1069,7 @@ void SnoopConnect( NetPacket_PEER* gamepacket, int bufid )
 
 	DBGTXT( MSGOUT( "snooping connect reply from id %d to id %d.", srcid, destid ); );
 	DBGTXT( NETs_GetSender( bufid ).print().c_str(); );
-	DBGTXT( re_playerlist[ LocalPlayerId >> 2 ].AddressTable[ LocalPlayerId % 4 ].print().c_str(); );
+	DBGTXT( node.print().c_str(); );
 
 	// check for duplicate replies
 	if ( Player_Status[ destid ] != PLAYER_INACTIVE ) {

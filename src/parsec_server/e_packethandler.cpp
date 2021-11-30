@@ -1137,7 +1137,7 @@ int E_PacketHandler::_ParseHBPacket_MASTER(char* recvline) {
 
 	// if we get this far, then we should have everything to try to add the node to the MasterServer->ServerList.
 	// BUT first let's see if the node's IP resolves...
-	int result = TheUDPDriver->ResolveHostName(ServerName, &_Node);
+	int result = TheUDPDriver->ResolveHostName(ServerName, _Node);
 	if(!result) {
 		return FALSE;
 	}

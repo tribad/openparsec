@@ -251,7 +251,7 @@ node_t* NET_PacketDriver::GetPktSender( int bufid )
 	
 	node = &ListenSenderStorage[ bufid ];
 	
-	memcpy( node, &ListenAddress[ bufid ].sin_addr, IP_ADR_LENGTH );
+	*node = *(sockaddr*)(&ListenAddress[ bufid ].sin_addr);
 	node->setPort(ntohs( ListenAddress[ bufid ].sin_port ) );
 	
 	return node;

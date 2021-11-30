@@ -16,7 +16,7 @@
 //
 void	UDP_StoreNodePort( node_t *node, word port );
 word	UDP_GetNodePort( node_t *node );
-int		NET_ResolveHostName( const char* hostname, char* ipaddress, node_t* node );
+int		NET_ResolveHostName( const char* hostname, char* ipaddress, node_t& node );
 
 
 // UDP packet platform specific functions -------------------------------------

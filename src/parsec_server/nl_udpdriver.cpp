@@ -275,17 +275,16 @@ int	NET_UDPDriver::_CloseSocket()
 
 // resolve a hostname using the DNS service -----------------------------------
 //
-int NET_UDPDriver::ResolveHostName( char *hostname, node_t* node )
+int NET_UDPDriver::ResolveHostName( char *hostname, node_t& node )
 {
 	ASSERT( hostname != NULL );
-	ASSERT( node != NULL );
 
 	if ( isdigit( hostname[ 0 ] ) ) {
 
 		// hostname is assumed to be an ip address
 		// -> just convert to binary representation
-
-		inet_aton( hostname, (in_addr *) node );
+		sockaddr nodeAddress = node.getAddress();
+		inet_aton( hostname, (in_addr *) nodeAddress.sa_data );
 
 		return TRUE;
 	}
@@ -300,7 +299,10 @@ int NET_UDPDriver::ResolveHostName( char *hostname, node_t* node )
 	if ( hptr->h_addrtype == AF_INET ) {
 		char **pptr = hptr->h_addr_list;
 		if ( *pptr != NULL ) {
-			memcpy( node, *pptr, IP_ADR_LENGTH );
+			sockaddr nodeAddress;
+			memcpy( &nodeAddress.sa_data, *pptr, IP_ADR_LENGTH );
+
+			node = nodeAddress;
 			return TRUE;
 		}
 	} else {
@@ -480,7 +482,8 @@ int	NET_UDPDriver::_RetrieveLocalIP()
 
 
 		node_t tmp_node;
-		memcpy( &tmp_node, &sa->sin_addr, IP_ADR_LENGTH );
+		tmp_node = *((sockaddr*)&sa->sin_addr);
+
 		NetworkInterfaces.push_back(tmp_node);
 		MSGOUT( "found interface #%d: %s", infocount, if_addr );
 	}

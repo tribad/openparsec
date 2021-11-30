@@ -101,7 +101,7 @@ public:
 	}
 
 	// resolve a hostname using the DNS service
-	int ResolveHostName( char *hostname, node_t* node );
+	int ResolveHostName( char *hostname, node_t& node );
 
 
 	// ------------------------------------------------------------------------

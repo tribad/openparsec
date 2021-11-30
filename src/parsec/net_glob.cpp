@@ -100,7 +100,7 @@ char*			CurServerToResolve  = NULL;
 
 // node of server to jump to (used by NET_ServerJump() implementation) --------
 //
-node_t*			CurJumpServerNode	= NULL;
+node_t*			CurJumpServerNode = nullptr;
 
 
 // current maximum number of players (in peer-to-peer or on server) -----------

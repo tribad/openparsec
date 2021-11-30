@@ -34,12 +34,6 @@
 // inline functions
 
 inline
-void CopyRemoteNode( node_t& dest, node_t& src )
-{
-	dest = src;
-}
-
-inline
 void CopyRemoteName( char *dest, const char *src )
 {
 	strncpy( dest, src, MAX_PLAYER_NAME );

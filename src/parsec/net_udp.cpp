@@ -172,22 +172,24 @@ static char packet_graph_send[ PACKET_LOSS_METER_LENGTH ];
 
 // function prototypes --------------------------------------------------------
 //
-int			NETs_CompareNodes( node_t *node1, node_t *node2 );
 const node_t&		NETs_GetSender( int bufid );
 
 
 // resolve a hostname using the DNS service -----------------------------------
 //
-int NET_ResolveHostName( const char* hostname, char* ipaddress, node_t* node )
+int NET_ResolveHostName( const char* hostname, char* ipaddress, node_t& node )
 {
 	ASSERT( hostname != NULL );
+
+	sockaddr nodeAddress;
 
 	if ( isdigit( hostname[ 0 ] ) ) {
 
 		// hostname is assumed to be an ip address -> just convert to binary representation
-		if ( node != NULL ) {
-			inet_aton( hostname, (in_addr*)node );
-		}
+
+      	inet_aton( hostname, (in_addr*)nodeAddress.sa_data );
+		node = nodeAddress;
+
 		if ( ipaddress != NULL ) {
 			strncpy( ipaddress, hostname, MAX_IPADDR_LEN );
 			ipaddress[ MAX_IPADDR_LEN ] = 0;
@@ -207,9 +209,8 @@ int NET_ResolveHostName( const char* hostname, char* ipaddress, node_t* node )
 		char **pptr = hptr->h_addr_list;
 		if ( *pptr != NULL ) {
 			// store node ?
-			if ( node != NULL ) {
-				memcpy( node, *pptr, IP_ADR_LENGTH );
-			}
+			memcpy( nodeAddress.sa_data, *pptr, IP_ADR_LENGTH );
+			node = nodeAddress;
 			// store numeric IP adress string
 			if ( ipaddress != NULL ) {
 				inet_ntop( hptr->h_addrtype, *pptr, ipaddress, MAX_IPADDR_LEN + 1 );
@@ -1112,12 +1113,15 @@ int NETs_InsertVirtualPacket( NetPacket* gamepacket )
 		// this function sets node addresses that may be
 		// contained in the packet to the virtual node address.
 
+		sockaddr vNodeAddress = virtual_node.getAddress();
 		// check for RE_PLAYERLIST
 		RE_PlayerList *re_playerlist = (RE_PlayerList *) &gamepacket_PEER->RE_List;
 		if ( re_playerlist->RE_Type == RE_PLAYERLIST ) {
 			DBGTXT( MSGOUT( "NETs_InsertVirtualPacket(): substituting addresses in RE_PLAYERLIST." ); );
-			for ( int id = 0; id < MAX_NET_UDP_PEER_PLAYERS; id++ )
-				re_playerlist->AddressTable[ id ] = virtual_node;
+
+			for ( int id = 0; id < MAX_NET_UDP_PEER_PLAYERS; id++ ) {
+				memcpy(&re_playerlist->AddressTable[id][0], &vNodeAddress, min(sizeof(vNodeAddress), (size_t)MAX_NODE_ADDRESS_BYTES));
+			}
 		}
 		
 		// check for second RE_PLAYERLIST
@@ -1126,7 +1130,7 @@ int NETs_InsertVirtualPacket( NetPacket* gamepacket )
 			if ( re_playerlist->RE_Type == RE_PLAYERLIST ) {
 				DBGTXT( MSGOUT( "NETs_InsertVirtualPacket(): substituting addresses in RE_PLAYERLIST." ); );
 				for ( int id = 0; id < MAX_NET_UDP_PEER_PLAYERS; id++ )
-					re_playerlist->AddressTable[ id ] = virtual_node;
+					memcpy(&re_playerlist->AddressTable[id][0], &vNodeAddress, min(sizeof(vNodeAddress), (size_t)MAX_NODE_ADDRESS_BYTES));
 			}
 		}
 		
@@ -1137,7 +1141,7 @@ int NETs_InsertVirtualPacket( NetPacket* gamepacket )
 			short numreqs = NET_SWAP_16( re_connectqueue->NumRequests );
 			ASSERT( ( numreqs >= 0 ) && ( numreqs <= MAX_SLOT_REQUESTS ) );
 			for ( int id = 0; id < numreqs; id++ )
-				re_connectqueue->AddressTable[ id ] = virtual_node;
+				memcpy(&re_connectqueue->AddressTable[id][0], &vNodeAddress, min(sizeof(vNodeAddress), (size_t)MAX_NODE_ADDRESS_BYTES));
 		}
 		
 		//NOTE:

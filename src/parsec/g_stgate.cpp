@@ -1558,17 +1558,13 @@ int StargateCollide( CustomObject *base )
 	if ( ( inrange == 0x01 ) && ShipInStargateJumpRange( stargate, MyShip, jumpdistance ) ) {
 
 		// schedule server jump if not already done
-		if ( CurJumpServerNode == NULL ) {
-
-			CurJumpServerNode = (node_t *) ALLOCMEM( sizeof( node_t ) );
-			if ( CurJumpServerNode == NULL )
-				OUTOFMEM( 0 );
-			memcpy( CurJumpServerNode, &stargate->destination_node, sizeof( node_t ) );
-
-			//TODO:
-			// initiate animation and sfx
-			ShowMessage( "prepare to jump!!!" );
+		if (CurJumpServerNode != nullptr) {
+			*CurJumpServerNode = stargate->destination_node;
 		}
+
+		//TODO:
+		// initiate animation and sfx
+		ShowMessage( "prepare to jump!!!" );
 
 	} else {
 

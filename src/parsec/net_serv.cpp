@@ -1503,7 +1503,8 @@ int NET_ResolveServerNode()
 
 	// try to resolve DNS name to IP address (still as string)
 	char resolved_name[ MAX_IPADDR_LEN + 1 ];
-	if ( NET_ResolveHostName( CurServerToResolve, resolved_name, NULL ) ) {
+	node_t dummy;
+	if ( NET_ResolveHostName( CurServerToResolve, resolved_name, dummy ) ) {
 		MSGOUT( "servername %s resolved to %s", CurServerToResolve, resolved_name );
 	} else {
 		// DNS lookup failed
@@ -1836,7 +1837,7 @@ int NET_ServerList_Get( char* masterhostname, int serverid /*= -1*/ )
 	node_t	_MasterServerNode;
 
 	// try to resolve DNS name to IP address (still as string)
-	if ( NET_ResolveHostName( masterhostname, ms_resolved, &_MasterServerNode ) ) {
+	if ( NET_ResolveHostName( masterhostname, ms_resolved, _MasterServerNode ) ) {
 		_MasterServerNode.setPort(DEFAULT_MASTERSERVER_UDP_PORT );
 		MSGOUT( "masterserver %s resolved to: %s", masterhostname, ms_resolved );
 	} else {
@@ -2003,7 +2004,11 @@ int NET_ServerList_UpdateServer( RE_IPv4ServerInfo* pServerInfo )
 			for( int nServerIndex = 0; nServerIndex < num_servers_joined; nServerIndex++ ) {
 				server_s& server = server_list[ nServerIndex ];
 				if ( server.serverid == serverid ) {
-					memcpy( &server.node, &pServerInfo->node, sizeof( node_t ) );
+
+					sockaddr serverAddress;
+					memcpy( &serverAddress, &pServerInfo->node, sizeof( node_t ) );
+
+					server.node = serverAddress;
 					server.xpos	= pServerInfo->xpos;
 					server.ypos	= pServerInfo->ypos;
 
@@ -2048,7 +2053,9 @@ int NET_ServerList_AddServer( RE_IPv4ServerInfo* pServerInfo )
 
 		//server_list[ nIndex ].server_name[ 0 ]		= 0;
 		strcpy( server.server_name, "TestServer" );
-		memcpy( &server.node, &pServerInfo->node, sizeof( node_t ) );
+		sockaddr serverAddress;
+		memcpy( &serverAddress, &pServerInfo->node, sizeof( pServerInfo->node ) );
+		server.node                 = serverAddress;
 		server.server_os[ 0 ]		= 0;
 		server.number_of_players	= 0;
 		server.max_players			= 0;

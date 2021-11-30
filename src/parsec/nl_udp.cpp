@@ -158,10 +158,10 @@ int UDPs_GetLocalIP()
 		if ( ifnum == NetInterfaceSelect ) {
 
 			// store globally: numeric
-			memcpy( &LocalNode, &sa->sin_addr, IP_ADR_LENGTH );
+			LocalNode = *(sockaddr*)(sa);
 
 			// store globally: presentation
-			inet_ntop( AF_INET, &LocalNode, local_ip, MAX_IPADDR_LEN + 1 );
+			strncpy(local_ip, LocalNode.getIP().c_str(), MAX_IPADDR_LEN);
 			DBGTXT( MSGOUT( "taking ip addr %s", local_ip ); );
 
 			//NOTE:
@@ -203,7 +203,8 @@ int UDPs_GetLocalIP()
 void UDPs_GetLocalBroadcast()
 {
 	// use global broadcast
-	memset( &LocalBroadcast, 0xff, IP_ADR_LENGTH );
+	sockaddr broadcastAddress;
+	memset( &broadcastAddress, 0xff, sizeof(broadcastAddress) );
 	inet_ntop( AF_INET, &LocalBroadcast, local_broadcast, MAX_IPADDR_LEN + 1 );
 
 	// append port number to ip address
@@ -296,7 +297,7 @@ void UDPs_GetLocalBroadcast()
 			
 			// store globally: numeric
 			sa = (struct sockaddr_in *) &ifr->ifr_broadaddr;
-			memcpy( &LocalBroadcast, &sa->sin_addr, IP_ADR_LENGTH );
+			LocalBroadcast = *(sockaddr*)(&sa->sin_addr);
 			
 			// store globally: presentation
 			inet_ntop( AF_INET, &LocalBroadcast, local_broadcast, MAX_IPADDR_LEN + 1 );

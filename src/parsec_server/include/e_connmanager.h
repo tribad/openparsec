@@ -25,7 +25,7 @@ public:
 	  m_challenge( -1 ),
 	  m_frame_generated( 0 )
 	  {
-		  memset( &m_node, 0, sizeof( node_t ) );
+		  m_node = node_t();
 	  }
 };
 
@@ -57,7 +57,7 @@ public:
 		memset( m_szName, 0, MAX_PLAYER_NAME  + 1 );
 		memset( m_szOSLine,     0, MAX_OSNAME_LEN   + 1 );
 		memset( m_szHostName,	0, MAX_HOSTNAME_LEN + 1 );
-		memset( &m_node,		0, sizeof( node_t ) );
+		m_node      = node_t();
 		m_challenge = -1;
 		m_nRecvRate = DEFAULT_CLIENT_RECV_RATE;
 		m_nSendFreq = DEFAULT_CLIENT_SEND_FREQUENCY;

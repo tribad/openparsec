@@ -400,7 +400,14 @@ int NET_MergeSlotRequests( NetPacket_PEER *gamepacket, int timetag )
 	// process all new slot requests
 	int numadded = 0;
 	for ( int newreq = 0; newreq < re_cq->NumRequests; newreq++ ) {
-		numadded += NET_AddSlotRequest( re_cq->AddressTable[ newreq ], re_cq->NameTable[ newreq ], timetag );
+		//
+		//  This is a hack to convert from the uint8_t data to the node data.
+		//  As long as there is no better serializer available this will be the work around.
+		//
+		//  TODO: remove if serializers in place.
+		sockaddr nodeAddr;
+		memcpy(&nodeAddr, &re_cq->AddressTable[newreq], min(sizeof(nodeAddr), (size_t)MAX_NODE_ADDRESS_BYTES));
+		numadded += NET_AddSlotRequest( node_t(nodeAddr), re_cq->NameTable[ newreq ], timetag );
 	}
 	return numadded;
 }
@@ -437,8 +444,8 @@ void NET_RmEvSinglePlayerTable( NetPacket_PEER* gamepacket )
 
 		// store address and name if player connected
 		if ( Player_Status[ id ] != PLAYER_INACTIVE ) {
-
-			re_playerlist->AddressTable[ id ] = Player_Node[ id ] ;
+			sockaddr nodeAddress = Player_Node[ id ].getAddress();
+			memcpy(&re_playerlist->AddressTable[ id ][0], &nodeAddress, min(sizeof(nodeAddress), (size_t)MAX_NODE_ADDRESS_BYTES)); ;
 			CopyRemoteName( re_playerlist->NameTable[ id ], Player_Name[ id ] );
 		}
 
@@ -478,8 +485,8 @@ void NET_RmEvSinglePlayerTable( NetPacket_PEER* gamepacket )
 			
 			// store address and name if player connected
 			if ( Player_Status[ id + 4 ] != PLAYER_INACTIVE ) {
-				
-				re_playerlist->AddressTable[ id ] = Player_Node[ id + 4 ] ;
+				sockaddr nodeAddress = Player_Node[ id + 4 ].getAddress() ;
+				memcpy(&re_playerlist->AddressTable[ id ][0], &nodeAddress, min(sizeof(nodeAddress), (size_t)MAX_NODE_ADDRESS_BYTES)),
 				CopyRemoteName( re_playerlist->NameTable[ id ], Player_Name[ id + 4 ] );
 			}
 			
@@ -531,8 +538,9 @@ void NET_RmEvSingleConnectQueue( NetPacket_PEER* gamepacket )
 		if ( SlotReqQueue[ req ].slotid != SLOTID_DELETED ) {
 			
 			// store node address and name of sender
-			CopyRemoteNode( re_connectqueue->AddressTable[ numvalid ],
-				SlotReqQueue[ req ].node );
+			sockaddr nodeAddress = SlotReqQueue[ req ].node.getAddress();
+			memcpy( &re_connectqueue->AddressTable[ numvalid ][ 0 ], &nodeAddress, min(sizeof(nodeAddress), (size_t)MAX_NODE_ADDRESS_BYTES));
+
 			CopyRemoteName( re_connectqueue->NameTable[ numvalid ],
 				SlotReqQueue[ req ].name );
 			numvalid++;

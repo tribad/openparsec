@@ -668,7 +668,7 @@ int E_GameServer::_MaintainMasterServer()
 
 		// try to resolve master server node
 		if ( !m_bMasterServer_NodeValid ) {
-			if ( TheUDPDriver->ResolveHostName( m_MasterServer_Hostname, &m_MasterServer_Node ) ) {
+			if ( TheUDPDriver->ResolveHostName( m_MasterServer_Hostname, m_MasterServer_Node ) ) {
 				m_MasterServer_Node.setPort( DEFAULT_MASTERSERVER_UDP_PORT );
 				m_bMasterServer_NodeValid = true;
 			} else {
